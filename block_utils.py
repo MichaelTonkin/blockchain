@@ -1,7 +1,4 @@
 from blockchain.block import Block
-import blockchain.globals
-
-blocks = blockchain.globals
 
 def create_block(transaction, previousHash):
     new_block = Block(transaction, previousHash)

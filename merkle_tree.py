@@ -1,5 +1,4 @@
 import hashlib
-import blockchain.globals
 
 #function: create_globals
 #description: basic bitch way of creating global variables.
