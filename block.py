@@ -2,9 +2,9 @@ from datetime import datetime
 
 
 class Block:
-    def __init__(self, transaction, previoushash):
+    def __init__(self, transaction):
         self.transaction = transaction
-        self.previousHash = previoushash
+        self.previousHash = None
         self.timestamp = datetime.now()
         self.blockHash = hash(str(self.previousHash) + str(self.timestamp) + str(self.transaction.certificate.key))
 
