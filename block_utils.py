@@ -1,4 +1,4 @@
-from blockchain.block import Block
+from application.block import Block
 
 def create_block(transaction, previousHash):
     new_block = Block(transaction, previousHash)

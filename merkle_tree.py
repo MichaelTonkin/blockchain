@@ -59,7 +59,7 @@ def compute_merkle_root():
     #repeat above until one node remains
 
 #function: calculate_merkle_hashes
-#description: takes the linked list of blocks in the blockchain and adds them to the merkle tree. This DOES NOT calculate the merkle root
+#description: takes the linked list of blocks in the application and adds them to the merkle tree. This DOES NOT calculate the merkle root
 # or build anything of the merkle tree aside from the bottom layer.
 def calculate_merkle_hashes():
     for block in blocks:
