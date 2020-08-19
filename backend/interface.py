@@ -3,6 +3,7 @@ from flask import Flask, request
 import time
 import json
 import requests
+import sys
 
 #Module:
 #Description: using the flask library we create a frontend which is used to submit new transactions to the blockchain.
@@ -19,7 +20,8 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["author", "content"]
+    required_fields = ["content"]
+    print("new_transactions()", file=sys.stdout)
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -28,8 +30,8 @@ def new_transactions():
         tx_data["timestamp"] = time.time()
 
         blockchain.add_transaction_to_pending(tx_data)
-
         return "Success", 201
+
 
 @app.route('/chain', methods=['GET'])
 def get_chain():

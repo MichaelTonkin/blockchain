@@ -2,16 +2,27 @@ import datetime
 import json
 import requests
 from flask import render_template, redirect, request
-from backend.interface import app
+from backend.interface import *
+from jinja2 import Environment, PackageLoader, select_autoescape
 
-CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:5000"
 
 posts = []
+
 
 @app.route('/')
 def index_page():
     """The HTML code for the front-end user interface."""
-    return 'Hello, World!'
+
+    env = Environment(
+        loader=PackageLoader('frontend', 'templates'), #lookup templates in the 'frontend' package
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    template = env.get_template('index.html')
+
+    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS,)
+
 
 def fetch_posts():
     """
@@ -35,25 +46,28 @@ def fetch_posts():
                        reverse=True)
 
 
+
+
 @app.route('/submit', methods=['POST'])
 def submit_textarea():
     """
     Endpoint to create a new transaction via our application
     """
     post_content = request.form["content"]
-    author = request.form["author"]
 
     post_object = {
-        'author': author,
         'content': post_content,
     }
 
     # Submit a transaction
-    new_tx_address = "{}/new_transaction".format(CONNECTED_NODE_ADDRESS)
+    new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
 
     requests.post(new_tx_address,
                   json=post_object,
                   headers={'Content-type': 'application/json'})
 
     # Return to the homepage
+    print(post_content, file=sys.stdout)
     return redirect('/')
+
+
