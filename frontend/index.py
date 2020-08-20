@@ -21,7 +21,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS, unconfirmed_transactions=blockchain.unconfirmed_transactions)
+    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS, unconfirmed_transactions=blockchain.unconfirmed_transactions, blocks=blockchain.chain)
 
 
 def fetch_posts():

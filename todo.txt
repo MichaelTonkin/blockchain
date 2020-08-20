@@ -1,0 +1,5 @@
+Fix unconfirmed transactions getting added to confirmed transactions.
+Make output look a bit nicer.
+Remove and refactor redundant code.
+Tidy files and packages.
+Test across Raspberry PI network.
