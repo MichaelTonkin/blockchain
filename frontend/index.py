@@ -21,7 +21,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS,)
+    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS, test_block=blockchain.last_block.to_string())
 
 
 def fetch_posts():
@@ -36,7 +36,6 @@ def fetch_posts():
         chain = json.loads(response.content)
         for block in chain["chain"]:
             for tx in block["transactions"]:
-                tx["index"] = block["index"]
                 tx["hash"] = block["previous_hash"]
                 content.append(tx)
 

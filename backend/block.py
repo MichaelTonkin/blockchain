@@ -78,10 +78,10 @@ class Blockchain:
         if not self.unconfirmed_transactions:
             return False
 
-        last_block = self.last_block()
+        last_block = self.last_block
 
         new_block = Block(transactions=self.unconfirmed_transactions,
-                          previous_hash=last_block.hash)
+                          previous_hash=last_block.get_previous_hash)
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)

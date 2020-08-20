@@ -21,13 +21,13 @@ def new_transactions():
     """
     tx_data = request.get_json()
     required_fields = ["content"]
-    print("new_transactions()", file=sys.stdout)
 
     for field in required_fields:
         if not tx_data.get(field):
             return "Invalid transaction data", 404
 
         tx_data["timestamp"] = time.time()
+        print(tx_data, file=sys.stdout)
 
         blockchain.add_transaction_to_pending(tx_data)
         return "Success", 201
