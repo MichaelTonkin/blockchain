@@ -20,7 +20,7 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["content"]
+    required_fields = ["certificate"]
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -180,7 +180,7 @@ def mine_unconfirmed_transactions():
         if chain_length == len(blockchain.chain):
             # announce the recently mined block to the network
             announce_new_block(blockchain.last_block)
-        return "Block #{} is mined.".format(blockchain.last_block.index)
+        return "Block #{} is mined.".format(blockchain.last_block.__dict__)
 
 '''
 @app.route('/mine', methods=['GET'])

@@ -1,15 +1,27 @@
+import sys
+import json
 from datetime import datetime
+from hashlib import sha256
 
 class Block:
     def __init__(self, transactions, previous_hash):
         self.transactions = transactions
         self.previous_hash = previous_hash
         self.timestamp = datetime.now()
-        self.block_hash = hash(str(self.previous_hash) + str(self.timestamp) + str(self.transactions.certificate.key))
         self.nonce = None
+        #TODO fix the fact that this is immutable
+        self.block_hash = self.calculate_block_hash() #+ str(self.transactions.certificate.key))
+
+    def calculate_block_hash(self):
+        block_string = json.dumps(str(self.__dict__), sort_keys=True)
+        return sha256(block_string.encode()).hexdigest()
+
+    def set_transactions(self, transactions):
+        self.transactions = transactions
 
     def get_block_hash(self):
-        return self.block_hash
+        print(self.__dict__, file=sys.stdout)
+        return str(self.block_hash)
 
     def get_transactions(self):
         return self.transactions
@@ -65,8 +77,10 @@ class Blockchain:
 
         computed_hash = block.get_block_hash()
         while not computed_hash.startswith('0' * Blockchain.difficulty):
+            print(block.nonce, file=sys.stdout)
             block.nonce += 1
-            computed_hash = block.get_block_hash()
+            computed_hash = block.calculate_block_hash()
+            print(computed_hash, file=sys.stdout)
 
         return computed_hash
 
@@ -75,7 +89,9 @@ class Blockchain:
                 block_hash == block.get_block_hash())
 
     def mine(self):
-        if not self.unconfirmed_transactions:
+        print("mining...", file=sys.stdout)
+        if not self.unconfirmed_transactions: #check that there is something to mine
+            print("nothing to mine", file=sys.stdout)
             return False
 
         last_block = self.last_block
