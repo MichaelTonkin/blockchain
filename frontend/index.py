@@ -66,7 +66,6 @@ def submit_textarea():
                   headers={'Content-type': 'application/json'})
 
     # Return to the homepage
-    print(post_content, file=sys.stdout)
     return redirect('/')
 
 

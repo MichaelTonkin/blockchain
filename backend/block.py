@@ -8,7 +8,7 @@ class Block:
         self.transactions = transactions
         self.previous_hash = previous_hash
         self.timestamp = datetime.now()
-        self.nonce = None
+        self.nonce = 0
         #TODO fix the fact that this is immutable
         self.block_hash = self.calculate_block_hash() #+ str(self.transactions.certificate.key))
 
@@ -30,10 +30,18 @@ class Block:
     def get_previous_hash(self):
         return self.previous_hash
 
+    #TODO change self.transactions to self.transactions.to_string()
     def to_string(self): #warning: remove private key from this after publishing
-        return str(" Transactions: " + str(self.transactions.to_string()) + " Previous Hash: " + str(self.previous_hash) + " Timestamp: " + \
+        return str(" Transactions: " + str(self.transactions_to_string()) + " Previous Hash: " + str(self.previous_hash) + " Timestamp: " + \
                str(self.timestamp) + " Hash: " + str(self.block_hash))
 
+    def transactions_to_string(self):
+        transaction_strings = []
+        index = 0
+        for transaction in self.transactions:
+            index += 1
+            transaction_strings.append( str(index) + ": " + str(transaction.to_string()))
+        return transaction_strings
 
 #class: Blockchain
 #description: contains all blocks in the backend.
@@ -48,7 +56,7 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=Transaction("Mike", "Computer", Certificate("Approved by Ryan the Tiger")),
+        genesis_block = Block(transactions=[Transaction("Mike", "Computer", Certificate("Approved by Ryan the Tiger"))],
                               previous_hash="0000")
         self.chain.append(genesis_block)
 
@@ -100,7 +108,13 @@ class Blockchain:
 
         last_block = self.last_block
 
-        new_block = Block(transactions=self.unconfirmed_transactions,
+        new_transactions = []
+
+        #generate a list of transactions
+        for transaction in self.unconfirmed_transactions:
+            new_transactions.append(Transaction("sender", "receiver", Certificate(transaction["certificate"])))
+
+        new_block = Block(transactions=new_transactions,
                           previous_hash=last_block.get_previous_hash)
 
         proof = self.proof_of_work(new_block)

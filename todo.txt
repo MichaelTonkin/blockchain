@@ -1,4 +1,5 @@
 Fix unconfirmed transactions getting added to confirmed transactions.
+Previous hash is using current hash. Fix this
 Make output look a bit nicer.
 Remove and refactor redundant code.
 Tidy files and packages.
