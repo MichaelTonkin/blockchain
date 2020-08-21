@@ -14,13 +14,14 @@ class Block:
 
     def calculate_block_hash(self):
         block_string = json.dumps(str(self.__dict__), sort_keys=True)
-        return sha256(block_string.encode()).hexdigest()
+        hash = sha256(block_string.encode()).hexdigest()
+        self.block_hash = hash
+        return hash
 
     def set_transactions(self, transactions):
         self.transactions = transactions
 
     def get_block_hash(self):
-        print(self.__dict__, file=sys.stdout)
         return str(self.block_hash)
 
     def get_transactions(self):
@@ -62,11 +63,13 @@ class Blockchain:
     def add_block(self, block, proof):
         previous_hash = self.last_block.get_block_hash()
 
-        if previous_hash == self.last_block.get_block_hash():
+        if previous_hash != self.last_block.get_block_hash():
             return False
 
-        if not Blockchain.is_valid_proof(block, proof):
+        #if we do not have a valid proof, return false
+        if not Blockchain.is_valid_proof(self, block, proof):
             return False
+        print("Chain length = " + str(len(self.chain)), file=sys.stdout)
 
         block.previous_hash = proof
         self.chain.append(block)
@@ -77,21 +80,22 @@ class Blockchain:
 
         computed_hash = block.get_block_hash()
         while not computed_hash.startswith('0' * Blockchain.difficulty):
-            print(block.nonce, file=sys.stdout)
             block.nonce += 1
             computed_hash = block.calculate_block_hash()
-            print(computed_hash, file=sys.stdout)
 
         return computed_hash
 
     def is_valid_proof(self, block, block_hash):
+        """
+        check if block_hash is valid hash of block and satisfies
+        the difficulty criteria.
+        """
+        print(block_hash + " + " + block.get_block_hash())
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.get_block_hash())
 
     def mine(self):
-        print("mining...", file=sys.stdout)
         if not self.unconfirmed_transactions: #check that there is something to mine
-            print("nothing to mine", file=sys.stdout)
             return False
 
         last_block = self.last_block

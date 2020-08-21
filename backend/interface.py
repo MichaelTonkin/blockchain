@@ -27,7 +27,6 @@ def new_transactions():
             return "Invalid transaction data", 404
 
         tx_data["timestamp"] = time.time()
-        print(tx_data, file=sys.stdout)
 
         blockchain.add_transaction_to_pending(tx_data)
         return "Success", 201
