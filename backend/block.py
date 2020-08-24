@@ -70,7 +70,7 @@ class Blockchain:
 
     def add_block(self, block, proof):
         previous_hash = self.last_block.get_block_hash()
-
+        print(self.last_block.get_block_hash())
         if previous_hash != self.last_block.get_block_hash():
             return False
 
@@ -79,7 +79,7 @@ class Blockchain:
             return False
         print("Chain length = " + str(len(self.chain)), file=sys.stdout)
 
-        block.previous_hash = proof
+        block.previous_hash = previous_hash
         self.chain.append(block)
         return True
 
@@ -115,11 +115,12 @@ class Blockchain:
             new_transactions.append(Transaction("sender", "receiver", Certificate(transaction["certificate"])))
 
         new_block = Block(transactions=new_transactions,
-                          previous_hash=last_block.get_previous_hash)
+                          previous_hash=last_block.get_previous_hash())
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
         self.unconfirmed_transactions = []
+        print(self.last_block.get_previous_hash())
         return new_block.get_block_hash()
 
     def check_chain_validity(cls, chain):
