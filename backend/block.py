@@ -7,7 +7,7 @@ class Block:
     def __init__(self, transactions, previous_hash):
         self.transactions = transactions
         self.previous_hash = previous_hash
-        self.timestamp = datetime.now()
+        self.timestamp = str(datetime.now())
         self.nonce = 0
         #TODO fix the fact that this is immutable
         self.block_hash = self.calculate_block_hash() #+ str(self.transactions.certificate.key))
@@ -147,12 +147,15 @@ class Blockchain:
         return result
 
 
-class Transaction:
+class Transaction(json.JSONEncoder):
     def __init__(self, sender, receiver, certificate):
         self.sender = sender
         self.receiver = receiver
-        self.timestamp = datetime.now()
-        self.certificate = certificate
+        self.timestamp = str(datetime.now())
+        self.certificate = certificate.to_string()
+
+    def default(self, o):
+        return o.__dict__
 
     def get_sender(self):
         return self.sender
@@ -164,14 +167,13 @@ class Transaction:
         return self.certificate
 
     def to_string(self):
-        return str(self.sender) + " Transferred " + str(self.certificate.to_string()) + " to " + str(self.receiver) + " at " + \
+        return str(self.sender) + " Transferred " + str(self.certificate) + " to " + str(self.receiver) + " at " + \
                str(self.timestamp)
 
 
 class Certificate:
     def __init__(self, data):
         self.data = data
-        self.key = hash(self.data)
 
     def to_string(self):
-        return str(self.key)
+        return str(self.data)

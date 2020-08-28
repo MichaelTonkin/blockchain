@@ -5,7 +5,7 @@ from flask import render_template, redirect, request
 from backend.interface import *
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-CONNECTED_NODE_ADDRESS = "http://127.0.0.1:5000"
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 posts = []
 

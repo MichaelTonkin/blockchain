@@ -1,4 +1,4 @@
-from backend.block import Blockchain, Block
+from backend.block import Blockchain, Block, Transaction, Certificate
 from flask import Flask, request
 import time
 import json
@@ -14,6 +14,9 @@ app = Flask(__name__)
 #initialize our blockchain as an object
 blockchain = Blockchain()
 
+# Contains the host address of other participating members of this network
+peers = set()
+
 @app.route('/new_transactions', methods=['POST'])
 def new_transactions():
     """
@@ -27,10 +30,22 @@ def new_transactions():
             return "Invalid transaction data", 404
 
         tx_data["timestamp"] = time.time()
-        print(tx_data, sys.stdout)
         blockchain.add_transaction_to_pending(tx_data)
         return "Success", 201
 
+
+def chain_to_json(block):
+    """
+    returns the block in json format
+    """
+    chain_data = []
+    transactions = []
+    for transaction in block.get_transactions():
+        transactions.append(transaction.__dict__)
+
+    chain_data.append({"transactions": transactions, "previous_hash": block.get_previous_hash(),
+                       "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()})
+    return chain_data
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
@@ -38,10 +53,12 @@ def get_chain():
     return the current node's copy of the blockchain in json format
     """
     chain_data = []
+
     for block in blockchain.chain:
-        chain_data.append(block.__dict__)
+        chain_data = chain_to_json(block)
     return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
+                       "chain": chain_data,
+                       "peers": list(peers)})
 
 @app.route('/pending_tx')
 def get_pending_tx():
@@ -51,15 +68,12 @@ def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
 
 
-# Contains the host address of other participating members of this network
-peers = set()
-
-
 @app.route('/register_node', methods=['POST'])
 def register_new_peers():
     """
     End point to add new peers to the network
     """
+
     # The host address to the peer node
     node_address = request.get_json()["node_address"]
     if not node_address:
@@ -68,20 +82,25 @@ def register_new_peers():
     # add the node to the peer list
     peers.add(node_address)
 
+    return get_chain()
+
 
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
     """
     Internally calls the `register_node` endpoint to
-    register current node with the remote node specified in the
-    request, and sync the blockchain as well with the remote node.
+    register current node with the node specified in the
+    request, and sync the blockchain as well as peer data.
     """
+
     node_address = request.get_json()["node_address"]
+
+
     if not node_address:
         return "Invalid data", 400
 
     data = {"node_address": request.host_url}
-    headers = {'Content-Type': "backend/json"}
+    headers = {'Content-Type': "application/json"}
 
     # Make a request to register with remote node and obtain information
     response = requests.post(node_address + "/register_node",
@@ -93,6 +112,8 @@ def register_with_existing_node():
         # update chain and the peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
+        print(response.__dict__, sys.stdout)
+        print("peers = " + str(peers))
         peers.update(response.json()['peers'])
         return "Registration successful", 200
     else:
@@ -145,7 +166,8 @@ def consensus():
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
     block_data = request.get_json()
-    block = Block(block_data["transactions"],
+    print("bd = " + str(block_data), sys.stdout)
+    block = Block(Transaction(block_data["sender"], block_data["receiver"], block_data["transactions"]),
                   block_data["previous_hash"])
 
     proof = block_data['hash']
@@ -165,7 +187,7 @@ def announce_new_block(block):
     """
     for peer in peers:
         url = "{}add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        requests.post(url, data=json.dumps(chain_to_json(block), sort_keys=True))
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
