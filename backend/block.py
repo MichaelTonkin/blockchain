@@ -1,17 +1,18 @@
-import sys
 import json
 from datetime import datetime
 from hashlib import sha256
 
 class Block:
+    """
+    The datastructure for a single block on the blockchain.
+    """
     def __init__(self, transactions, previous_hash):
         self.transactions = []
         self.transactions_to_string_list(transactions)
         self.previous_hash = previous_hash
         self.timestamp = str(datetime.now())
         self.nonce = 0
-        #TODO fix the fact that this is immutable
-        self.block_hash = self.calculate_block_hash() #+ str(self.transactions.certificate.key))
+        self.block_hash = self.calculate_block_hash()
 
     def calculate_block_hash(self):
         block_string = json.dumps(str(self.__dict__), sort_keys=True)
@@ -38,23 +39,18 @@ class Block:
     def get_previous_hash(self):
         return self.previous_hash
 
-    #TODO change self.transactions to self.transactions.to_string()
-    def to_string(self): #warning: remove private key from this after publishing
-        return str(" Transactions: " + str(self.transactions_to_string()) + " Previous Hash: " + str(self.previous_hash) + " Timestamp: " + \
+    def to_string(self):
+        return str(" Transactions: " + str(self.transactions) + " Previous Hash: " + str(self.previous_hash) + " Timestamp: " + \
                str(self.timestamp) + " Hash: " + str(self.block_hash))
 
-    def transactions_to_string(self):
-        transaction_strings = []
-        index = 0
-        for transaction in self.transactions:
-            index += 1
-            transaction_strings.append( str(index) + ": " + str(transaction.to_string()))
-        return transaction_strings
 
-#class: Blockchain
-#description: contains all blocks in the backend.
+
 class Blockchain:
-
+    """
+    The data structure for the blockchain. Manages storing blocks, mining algorithm, validity and PoW.
+    Do note that you will need to call blockchain.chain in order to access individual
+    blocks.
+    """
     difficulty = 1
 
     def __init__(self):
@@ -82,7 +78,6 @@ class Blockchain:
         if previous_hash != self.last_block.get_block_hash():
             return False
 
-        #if we do not have a valid proof, return false
         if not Blockchain.is_valid_proof(self, block, proof):
             return False
 
@@ -141,7 +136,7 @@ class Blockchain:
         for block in chain:
             block_hash = block.get_block_hash()
             # remove the hash field to recompute the hash again
-            # using `compute_hash` method.
+            # using "compute_hash" method.
             delattr(block, "hash")
 
             if not cls.is_valid_proof(block, block.get_block_hash()) or \
@@ -154,15 +149,12 @@ class Blockchain:
         return result
 
 
-class Transaction(json.JSONEncoder):
+class Transaction:
     def __init__(self, sender, receiver, certificate):
         self.sender = sender
         self.receiver = receiver
         self.timestamp = str(datetime.now())
         self.certificate = certificate.to_string()
-
-    def default(self, o):
-        return o.__dict__
 
     def get_sender(self):
         return self.sender

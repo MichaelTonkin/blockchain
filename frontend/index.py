@@ -12,7 +12,7 @@ posts = []
 
 @app.route('/')
 def index_page():
-    """The HTML code for the front-end user interface."""
+    """Provides data for the index.html page on the front-end."""
     fetch_posts()
     env = Environment(
         loader=PackageLoader('frontend', 'templates'),
@@ -37,15 +37,8 @@ def fetch_posts():
         chain = json.loads(response.content)
         for block in chain["chain"]:
             content.append(block)
-            #for tx in block["transactions"]:
-            #    print(block)
-                #tx["hash"] = block["previous_hash"]
-                #content.append(tx)
 
         global posts
-        #posts = sorted(content,
-        #               #key=lambda k: k['timestamp'],
-         #              reverse=True)
         posts = content
 
 
@@ -68,6 +61,7 @@ def submit_textarea():
     requests.post(new_tx_address,
                   json=post_object,
                   headers={'Content-type': 'application/json'})
+
     # Return to the homepage
     return redirect('/')
 

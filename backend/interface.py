@@ -1,12 +1,8 @@
-from backend.block import Blockchain, Block, Transaction, Certificate
+from backend.block import Blockchain, Block
 from flask import Flask, request
 import time
 import json
 import requests
-import sys
-
-#Module:
-#Description: using the flask library we create a frontend which is used to submit new transactions to the blockchain.
 
 #initialize flask backend
 app = Flask(__name__)
@@ -34,17 +30,19 @@ def new_transactions():
         return "Success", 201
 
 
-def chain_to_json(block):
+def block_to_json(block):
     """
-    returns the block in json format
+    Converts the block passed into parameters into a json readable format.
     """
 
     transactions = []
+
     for transaction in block.get_transactions():
         transactions.append(str(transaction))
 
     return {"transactions": transactions, "previous_hash": block.get_previous_hash(),
                        "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
+
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
@@ -54,7 +52,7 @@ def get_chain():
     chain_data = []
 
     for block in blockchain.chain:
-        chain_data.append(chain_to_json(block))
+        chain_data.append(block_to_json(block))
 
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
@@ -88,7 +86,7 @@ def register_new_peers():
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
     """
-    Internally calls the `register_node` endpoint to
+    Internally calls the "register_node" endpoint to
     register current node with the node specified in the
     request, and sync the blockchain as well as peer data.
     """
@@ -122,18 +120,18 @@ def register_with_existing_node():
 
 
 def create_chain_from_dump(chain_dump):
-    blockchain = Blockchain()
+    bc = Blockchain()
     for idx, block_data in enumerate(chain_dump):
         block = Block(block_data["transactions"],
                       block_data["previous_hash"])
         proof = block_data['hash']
         if idx > 0:
-            added = blockchain.add_block(block, proof)
+            added = bc.add_block(block, proof)
             if not added:
                 raise Exception("The chain dump is tampered!")
         else:  # the block is a genesis block, no verification needed
-            blockchain.chain.append(block)
-    return blockchain
+            bc.chain.append(block)
+    return bc
 
 def consensus():
     """
@@ -160,11 +158,12 @@ def consensus():
 
     return False
 
-# endpoint to add a block mined by someone else to
-# the node's chain. The node first verifies the block
-# and then adds it to the chain.
+
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
+    """Endpoint to add a block mined by somone else to the node's chain. The node first verifies the block and then
+    adds it to the chain."""
+
     block_data = request.get_json(force=True)
 
     block = Block(block_data["transactions"],
@@ -202,15 +201,3 @@ def mine_unconfirmed_transactions():
             # announce the recently mined block to the network
             announce_new_block(blockchain.last_block)
         return "Block #{} is mined.".format(blockchain.last_block.__dict__)
-
-'''
-@app.route('/mine', methods=['GET'])
-def mine_unconfirmed_transactions():
-    """
-    end point to request a node to mine any existing unconfirmed transactions
-    """
-    result = blockchain.mine()
-    if not result:
-        return "No transactions to mine"
-    return "Block #{} is mined.".format(result)
-'''
