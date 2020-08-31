@@ -13,13 +13,13 @@
     <a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
 	<a href="/"><button>Resync</button></a>
     <h2 style='background-color:cyan;'>Unconfirmed Transactions:</h2>
-    {% for uc in unconfirmed_transactions%}
+    <!--{% for uc in unconfirmed_transactions%}
         {{uc}}<br />
     {% endfor %}
-
+    -->
     <h2 style='background-color:red;'>Confirmed Transactions:</h2>
-    {% for block in blocks %}
-        {{block.to_string()}} <br />
+    {% for post in posts %}
+        {{post}} <br />
     {% endfor %}
 </body>
 </html>

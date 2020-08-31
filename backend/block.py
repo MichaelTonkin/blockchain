@@ -5,7 +5,8 @@ from hashlib import sha256
 
 class Block:
     def __init__(self, transactions, previous_hash):
-        self.transactions = transactions
+        self.transactions = []
+        self.transactions_to_string_list(transactions)
         self.previous_hash = previous_hash
         self.timestamp = str(datetime.now())
         self.nonce = 0
@@ -26,6 +27,13 @@ class Block:
 
     def get_transactions(self):
         return self.transactions
+
+    def transactions_to_string_list(self, transactions):
+        for transaction in transactions:
+            if type(transaction) == str:
+                self.transactions.append(transaction)
+            else:
+                self.transactions.append(transaction.to_string())
 
     def get_previous_hash(self):
         return self.previous_hash
@@ -70,14 +78,13 @@ class Blockchain:
 
     def add_block(self, block, proof):
         previous_hash = self.last_block.get_block_hash()
-        print(self.last_block.get_block_hash())
+
         if previous_hash != self.last_block.get_block_hash():
             return False
 
         #if we do not have a valid proof, return false
         if not Blockchain.is_valid_proof(self, block, proof):
             return False
-        print("Chain length = " + str(len(self.chain)), file=sys.stdout)
 
         block.previous_hash = previous_hash
         self.chain.append(block)
@@ -98,7 +105,7 @@ class Blockchain:
         check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        print(block_hash + " + " + block.get_block_hash())
+
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.get_block_hash())
 
@@ -120,7 +127,7 @@ class Blockchain:
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
         self.unconfirmed_transactions = []
-        print(self.last_block.get_previous_hash())
+
         return new_block.get_block_hash()
 
     def check_chain_validity(cls, chain):

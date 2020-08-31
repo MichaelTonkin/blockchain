@@ -41,10 +41,11 @@ def chain_to_json(block):
     chain_data = []
     transactions = []
     for transaction in block.get_transactions():
-        transactions.append(transaction.__dict__)
+        transactions.append(str(transaction))
 
     chain_data.append({"transactions": transactions, "previous_hash": block.get_previous_hash(),
                        "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()})
+    print("chain data = " + str(chain_data))
     return chain_data
 
 @app.route('/chain', methods=['GET'])
@@ -112,9 +113,9 @@ def register_with_existing_node():
         # update chain and the peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
-        print(response.__dict__, sys.stdout)
-        print("peers = " + str(peers))
+
         peers.update(response.json()['peers'])
+
         return "Registration successful", 200
     else:
         # if something goes wrong, pass it on to the API response
@@ -165,11 +166,11 @@ def consensus():
 # and then adds it to the chain.
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
-    block_data = request.get_json()
-    print("bd = " + str(block_data), sys.stdout)
-    block = Block(Transaction(block_data["sender"], block_data["receiver"], block_data["transactions"]),
-                  block_data["previous_hash"])
+    block_data = request.get_json(force=True)
+    print("request = " + str(request.__dict__))
 
+    block = Block(block_data["transactions"],
+                  block_data["previous_hash"])
     proof = block_data['hash']
     added = blockchain.add_block(block, proof)
 
@@ -187,7 +188,9 @@ def announce_new_block(block):
     """
     for peer in peers:
         url = "{}add_block".format(peer)
-        requests.post(url, data=json.dumps(chain_to_json(block), sort_keys=True))
+        print("json dumps = " + json.dumps(block.__dict__))
+        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():

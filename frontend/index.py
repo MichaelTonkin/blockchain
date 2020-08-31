@@ -13,7 +13,7 @@ posts = []
 @app.route('/')
 def index_page():
     """The HTML code for the front-end user interface."""
-
+    fetch_posts()
     env = Environment(
         loader=PackageLoader('frontend', 'templates'), #lookup templates in the 'frontend' package
         autoescape=select_autoescape(['html', 'xml'])
@@ -21,7 +21,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS, unconfirmed_transactions=blockchain.unconfirmed_transactions, blocks=blockchain.chain)
+    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS)
 
 
 def fetch_posts():
@@ -35,14 +35,18 @@ def fetch_posts():
         content = []
         chain = json.loads(response.content)
         for block in chain["chain"]:
-            for tx in block["transactions"]:
-                tx["hash"] = block["previous_hash"]
-                content.append(tx)
+            content.append(block)
+            print(content)
+            #for tx in block["transactions"]:
+            #    print(block)
+                #tx["hash"] = block["previous_hash"]
+                #content.append(tx)
 
         global posts
-        posts = sorted(content,
-                       key=lambda k: k['timestamp'],
-                       reverse=True)
+        #posts = sorted(content,
+        #               #key=lambda k: k['timestamp'],
+         #              reverse=True)
+        posts = content
 
 
 
