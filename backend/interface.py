@@ -23,7 +23,7 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["certificate"]
+    required_fields = ["content"]
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -38,15 +38,13 @@ def chain_to_json(block):
     """
     returns the block in json format
     """
-    chain_data = []
+
     transactions = []
     for transaction in block.get_transactions():
         transactions.append(str(transaction))
 
-    chain_data.append({"transactions": transactions, "previous_hash": block.get_previous_hash(),
-                       "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()})
-    print("chain data = " + str(chain_data))
-    return chain_data
+    return {"transactions": transactions, "previous_hash": block.get_previous_hash(),
+                       "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
 
 @app.route('/chain', methods=['GET'])
 def get_chain():
@@ -56,7 +54,8 @@ def get_chain():
     chain_data = []
 
     for block in blockchain.chain:
-        chain_data = chain_to_json(block)
+        chain_data.append(chain_to_json(block))
+
     return json.dumps({"length": len(chain_data),
                        "chain": chain_data,
                        "peers": list(peers)})
@@ -167,11 +166,10 @@ def consensus():
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
     block_data = request.get_json(force=True)
-    print("request = " + str(request.__dict__))
 
     block = Block(block_data["transactions"],
                   block_data["previous_hash"])
-    proof = block_data['hash']
+    proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
 
     if not added:
@@ -188,7 +186,6 @@ def announce_new_block(block):
     """
     for peer in peers:
         url = "{}add_block".format(peer)
-        print("json dumps = " + json.dumps(block.__dict__))
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
 

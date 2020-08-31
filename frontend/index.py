@@ -15,7 +15,7 @@ def index_page():
     """The HTML code for the front-end user interface."""
     fetch_posts()
     env = Environment(
-        loader=PackageLoader('frontend', 'templates'), #lookup templates in the 'frontend' package
+        loader=PackageLoader('frontend', 'templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
 
@@ -31,12 +31,12 @@ def fetch_posts():
     """
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
+
     if response.status_code == 200:
         content = []
         chain = json.loads(response.content)
         for block in chain["chain"]:
             content.append(block)
-            print(content)
             #for tx in block["transactions"]:
             #    print(block)
                 #tx["hash"] = block["previous_hash"]
@@ -59,7 +59,7 @@ def submit_textarea():
     post_content = request.form["content"]
 
     post_object = {
-        'certificate': post_content,
+        'content': post_content,
     }
 
     # Submit a transaction
@@ -68,7 +68,6 @@ def submit_textarea():
     requests.post(new_tx_address,
                   json=post_object,
                   headers={'Content-type': 'application/json'})
-
     # Return to the homepage
     return redirect('/')
 

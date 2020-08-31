@@ -119,7 +119,7 @@ class Blockchain:
 
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-            new_transactions.append(Transaction("sender", "receiver", Certificate(transaction["certificate"])))
+            new_transactions.append(Transaction("sender", "receiver", Certificate(transaction["content"])))
 
         new_block = Block(transactions=new_transactions,
                           previous_hash=last_block.get_previous_hash())
