@@ -1,7 +1,4 @@
-import datetime
-import json
-import requests
-from flask import render_template, redirect, request
+from flask import redirect
 from backend.interface import *
 from jinja2 import Environment, PackageLoader, select_autoescape
 

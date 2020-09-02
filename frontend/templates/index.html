@@ -6,17 +6,35 @@
 <body>
 
     <h1 class="heading">Blockchain Pre-Release</h1>
+
+    <h2>Generate New Product</h2>
     <form action="/submit" method="post">
-        <input type="text" name="content">
+        <input type="text" name="company" placeholder="Company Name">
+        <input type="text" name="initial_id" placeholder="Initial Product ID">
+        <input type="text" name="weight" placeholder="Weight (KG)">
+        <input type="text" name="customer_id" placeholder="Customer ID">
         <input type="submit">
     </form>
-    <a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
+
+    <h2>Transfer Product</h2>
+    <form action="/submit" method="post">
+        <input type="text" name="company" placeholder="Company Name">
+        <input type="text" name="manufacturer_id" placeholder="Manufacturer Product ID">
+        <input type="text" name="initial_id" placeholder="Initial Product ID">
+        <input type="text" name="weight" placeholder="Weight (KG)">
+        <input type="text" name="customer_id" placeholder="Customer ID">
+        <input type="submit">
+    </form>
+
+    <h2>old</h2>
+    <form action="/submit" method="post">
+        <input type="text" name="content" placeholder="">
+        <input type="submit">
+    </form>
+
+    <a href="{{node_address}}/mine" target="_blank"><button>Mine Transactions</button></a>
 	<a href="/"><button>Resync</button></a>
-    <h2 style='background-color:cyan;'>Unconfirmed Transactions:</h2>
-    <!--{% for uc in unconfirmed_transactions%}
-        {{uc}}<br />
-    {% endfor %}
-    -->
+
     <h2 style='background-color:red;'>Confirmed Transactions:</h2>
     {% for post in posts %}
         {{post}} <br />
