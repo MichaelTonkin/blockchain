@@ -1,11 +1,11 @@
 from flask import redirect
 from backend.interface import *
 from jinja2 import Environment, PackageLoader, select_autoescape
+import sys
+from frontend import app
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
-
 posts = []
-
 
 @app.route('/')
 def index_page():
@@ -39,24 +39,28 @@ def fetch_posts():
         posts = content
 
 
-
-
 @app.route('/submit', methods=['POST'])
 def submit_textarea():
     """
     Endpoint to create a new transaction via our application
     """
-    post_content = request.form["content"]
+    manufacturer_id = request.form["manufacturer_id"]
+    initial_id = request.form["initial_id"]
+    weight = request.form["weight"]
+    customer_id = request.form["customer_id"]
 
-    post_object = {
-        'content': post_content,
+    product_object = {
+        'manufacturer_id': manufacturer_id,
+        'initial_id': initial_id,
+        'weight': weight,
+        'customer_id': customer_id,
     }
 
     # Submit a transaction
     new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
 
     requests.post(new_tx_address,
-                  json=post_object,
+                  json=product_object,
                   headers={'Content-type': 'application/json'})
 
     # Return to the homepage

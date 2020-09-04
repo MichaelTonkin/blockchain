@@ -4,9 +4,8 @@ import time
 import json
 import requests
 
-#initialize flask backend
-app = Flask(__name__)
 
+app = Flask(__name__)
 #initialize our blockchain as an object
 blockchain = Blockchain()
 
@@ -19,7 +18,7 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["content"]
+    required_fields = ["initial_id", "weight", "customer_id"]
 
     for field in required_fields:
         if not tx_data.get(field):

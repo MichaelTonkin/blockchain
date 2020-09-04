@@ -60,7 +60,7 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("Mike", "Computer", Certificate("Approved by Ryan the Tiger"))],
+        genesis_block = Block(transactions=[Transaction("Chain Custodian", "UWE", "500", "A0000", "")],
                               previous_hash="0000")
         self.chain.append(genesis_block)
 
@@ -114,7 +114,8 @@ class Blockchain:
 
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-            new_transactions.append(Transaction("sender", "receiver", Certificate(transaction["content"])))
+            new_transactions.append(Transaction("", transaction["customer_id"], transaction["weight"],
+                                                transaction["initial_id"], transaction["manufacturer_id"]))
 
         new_block = Block(transactions=new_transactions,
                           previous_hash=last_block.get_previous_hash())
@@ -150,29 +151,14 @@ class Blockchain:
 
 
 class Transaction:
-    def __init__(self, sender, receiver, certificate):
+    def __init__(self, sender, receiver, weight, initID, manuID):
         self.sender = sender
         self.receiver = receiver
+        self.initID = initID #initial product id
+        self.manuID = manuID #manugacturer product id
+        self.weight = weight
         self.timestamp = str(datetime.now())
-        self.certificate = certificate.to_string()
-
-    def get_sender(self):
-        return self.sender
-
-    def get_receiver(self):
-        return self.receiver
-
-    def get_certificate(self):
-        return self.certificate
 
     def to_string(self):
-        return str(self.sender) + " Transferred " + str(self.certificate) + " to " + str(self.receiver) + " at " + \
-               str(self.timestamp)
-
-
-class Certificate:
-    def __init__(self, data):
-        self.data = data
-
-    def to_string(self):
-        return str(self.data)
+        return "Date: " + str(self.timestamp) + " Manufacturer Product ID: " + self.manuID + " Weight (KG): " + self.weight \
+               + " Initial Product ID: " + self.initID + " Customer: " + self.receiver
