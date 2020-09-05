@@ -1,4 +1,5 @@
 import json
+from backend.cryptography.rsa import encrypt
 from datetime import datetime
 from hashlib import sha256
 
@@ -34,7 +35,7 @@ class Block:
             if type(transaction) == str:
                 self.transactions.append(transaction)
             else:
-                self.transactions.append(transaction.to_string())
+                self.transactions.append(transaction)
 
     def get_previous_hash(self):
         return self.previous_hash
@@ -60,7 +61,7 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("Chain Custodian", "UWE", "500", "A0000", "")],
+        genesis_block = Block(transactions=[encrypt(Transaction("Chain Custodian", "UWE", "500", "A0000", "").to_string())],
                               previous_hash="0000")
         self.chain.append(genesis_block)
 

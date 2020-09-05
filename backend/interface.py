@@ -1,13 +1,20 @@
 from backend.block import Blockchain, Block
+from backend.cryptography.rsa import generate_private_key, generate_public_key, decrypt
 from flask import Flask, request
 import time
 import json
 import requests
-
+import sys
 
 app = Flask(__name__)
+
+#get our private and public keys
+private_key = generate_private_key()
+public_key = generate_public_key()
+
 #initialize our blockchain as an object
 blockchain = Blockchain()
+
 
 # Contains the host address of other participating members of this network
 peers = set()
@@ -200,3 +207,10 @@ def mine_unconfirmed_transactions():
             # announce the recently mined block to the network
             announce_new_block(blockchain.last_block)
         return "Block #{} is mined.".format(blockchain.last_block.__dict__)
+
+
+@app.route('/decrypt', methods=['GET'])
+def decrypt_transaction():
+    decrypted = str(decrypt(blockchain.last_block.transactions[0]))
+    print(decrypted, sys.stdout)
+    return decrypted
