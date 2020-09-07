@@ -115,8 +115,8 @@ class Blockchain:
 
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-            new_transactions.append(Transaction("", transaction["customer_id"], transaction["weight"],
-                                                transaction["initial_id"], transaction["manufacturer_id"]))
+            new_transactions.append(encrypt(Transaction("", transaction["customer_id"], transaction["weight"],
+                                                transaction["initial_id"], transaction["manufacturer_id"]).to_string()))
 
         new_block = Block(transactions=new_transactions,
                           previous_hash=last_block.get_previous_hash())

@@ -1,5 +1,5 @@
 from backend.block import Blockchain, Block
-from backend.cryptography.rsa import generate_private_key, generate_public_key, decrypt
+from backend.cryptography.rsa import generate_private_key, generate_public_key, decrypt, encrypt
 from flask import Flask, request
 import time
 import json
@@ -172,7 +172,7 @@ def verify_and_add_block():
 
     block_data = request.get_json(force=True)
 
-    block = Block(block_data["transactions"],
+    block = Block(encrypt(block_data["transactions"].to_string()),
                   block_data["previous_hash"])
     proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
