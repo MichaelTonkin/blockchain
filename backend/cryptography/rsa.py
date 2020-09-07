@@ -72,6 +72,8 @@ def decrypt(encrypted_msg):
     Decrypts a message in string format
     :param: encrypted_msg - an encrypted message
     """
+    print(encrypted_msg, sys.stdout)
+
     decrypted_msg = private_key.decrypt(
         encrypted_msg,
         padding.OAEP(
