@@ -211,6 +211,6 @@ def mine_unconfirmed_transactions():
 
 @app.route('/decrypt', methods=['GET'])
 def decrypt_transaction():
-    decrypted = str(decrypt(blockchain.last_block.transactions[0]))
+    decrypted = str(decrypt((str(blockchain.last_block.transactions[0]))))
     print(decrypted, sys.stdout)
     return decrypted

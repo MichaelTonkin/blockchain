@@ -2,11 +2,12 @@
 This module contains the code for generating private and public keys.
 We are using the RSA algorithm to do this.
 """
-import util
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
+import util, sys, pem, os.path
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes, serialization
+from os import path
 
+keys = []
 
 def generate_private_key():
     """
@@ -14,28 +15,39 @@ def generate_private_key():
     Should not be shared with any other nodes.
     """
     global private_key
-    keys = util.read_from_csv("keys")
-    if(len(keys) > 1):
-        private_key = keys[0]
+    filename = "private_key.pem"
+    #check if there is a private key on file. If so, use that.
+
+    if path.exists(filename):
+        private_key = load_key(filename)
+
     else:
+        #generate the private key
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
         )
-        util.write_to_csv(str(private_key), "keys")
+
+        #priv_serial holds a serialized version of the private key.
+        priv_serial = private_key.private_bytes(
+            encoding = serialization.Encoding.PEM,
+            format = serialization.PrivateFormat.PKCS8,
+            encryption_algorithm = serialization.NoEncryption()
+        )
+
+        with open("private_key.pem", "wb") as key_file:
+            key_file.write(priv_serial)
+
 
 def generate_public_key():
     """
     Generates a public key from the private key.
     Used in encrypting messages to be sent to node with the corresponding private key.
     """
+
     global public_key
-    keys = util.read_from_csv("keys")
-    if(len(keys) > 1):
-        public_key = keys[1]
-    else:
-        public_key = private_key.public_key()
-        util.write_to_csv(str(private_key), "keys")
+    public_key = private_key.public_key()
+
 
 
 def encrypt(msg):
@@ -44,7 +56,7 @@ def encrypt(msg):
     :param: msg - String
     """
     msg = b'' + bytes(msg, 'utf8')
-    ciphertext =  public_key.encrypt(
+    ciphertext = public_key.encrypt(
         msg,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -69,4 +81,18 @@ def decrypt(encrypted_msg):
         )
     )
     return decrypted_msg
+
+
+def load_key(filename):
+    """
+    Loads public or private key from a .pem file
+    """
+    with open(filename, "rb") as key_file:
+        key = serialization.load_pem_private_key(
+        key_file.read(),
+        password = None,
+        )
+    return key
+
+
 
