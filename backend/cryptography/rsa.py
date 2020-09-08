@@ -93,6 +93,7 @@ def load_key(filename):
         key = serialization.load_pem_private_key(
         key_file.read(),
         password = None,
+        backend = None
         )
     return key
 
