@@ -1,3 +1,6 @@
+Make a 'fetch invoices' button which will collect and decrypt all of the transactions sent to your address.
+Use consensus algorithm to make sure that for each transaction, there is an additional one sent to the chain custodian.
+
 
 Make output look a bit nicer.
 Remove and refactor redundant code.

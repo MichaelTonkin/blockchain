@@ -2,7 +2,7 @@
 This module contains the code for generating private and public keys.
 We are using the RSA algorithm to do this.
 """
-import util, sys, pem, os.path
+import sys
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from os import path
