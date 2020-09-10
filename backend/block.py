@@ -61,8 +61,9 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[encrypt(Transaction("Chain Custodian", "UWE", "500", "A0000", "").to_string())],
+        genesis_block = Block(transactions=[Transaction("UWE", encrypt("500"), encrypt("A0000"), "0").to_string()],
                               previous_hash="0000")
+
         self.chain.append(genesis_block)
 
     #used to quickly index into the most recently added block in the chain.
@@ -115,8 +116,9 @@ class Blockchain:
 
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-            new_transactions.append(encrypt(Transaction("", transaction["customer_id"], transaction["weight"],
-                                                transaction["initial_id"], transaction["manufacturer_id"]).to_string()))
+            new_transactions.append(Transaction(transaction["customer_id"], encrypt(transaction["weight"]),
+                                                encrypt(transaction["initial_id"]), encrypt(transaction["manufacturer_id"])
+                                                ).to_string())
 
         new_block = Block(transactions=new_transactions,
                           previous_hash=last_block.get_previous_hash())
@@ -152,14 +154,13 @@ class Blockchain:
 
 
 class Transaction:
-    def __init__(self, sender, receiver, weight, initID, manuID):
-        self.sender = sender
-        self.receiver = receiver
+    def __init__(self, receiver, weight, initID, manuID):
+        self.receiver = receiver #the address of the node recieving this transaction
         self.initID = initID #initial product id
         self.manuID = manuID #manugacturer product id
         self.weight = weight
-        self.timestamp = str(datetime.now())
+        self.timestamp = encrypt(str(datetime.now()))
 
     def to_string(self):
-        return "Date: " + str(self.timestamp) + " Manufacturer Product ID: " + self.manuID + " Weight (KG): " + self.weight \
-               + " Initial Product ID: " + self.initID + " Customer: " + self.receiver
+        return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + self.manuID + ' Weight_KG ' + self.weight \
+               + ' Initial_Product_ID ' + self.initID + ' Customer ' + self.receiver + '}'

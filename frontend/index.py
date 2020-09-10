@@ -3,9 +3,11 @@ from backend.interface import *
 from jinja2 import Environment, PackageLoader, select_autoescape
 import sys
 from frontend import app
+from backend.interface import address
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
+invoices = []
 
 @app.route('/')
 def index_page():
@@ -18,7 +20,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(posts=posts, invoices=invoices, node_address=CONNECTED_NODE_ADDRESS)
 
 
 def fetch_posts():
@@ -32,8 +34,23 @@ def fetch_posts():
     if response.status_code == 200:
         content = []
         chain = json.loads(response.content)
+
+        #iterate through each block and their transactions
         for block in chain["chain"]:
             content.append(block)
+            for transaction in block["transactions"]:
+                customer_pos = transaction.find("Customer") #get the customer id from transaction
+                if customer_pos is not -1:
+                    customer = transaction[customer_pos + 9:]
+                    customer = customer[0:len(customer)-1]
+                    print(customer)
+                    if customer == address:
+                        encrypted = transaction.split(" ")
+                        invoices.append(encrypted[1])
+                        #decrypt transactions before adding them to invoices
+                        #encrypted_str = transaction[78: len(transaction) - 18]
+                        #print(encrypted_str, sys.stdout)
+                        #invoices.append(decrypt(encrypted_str))
 
         global posts
         posts = content

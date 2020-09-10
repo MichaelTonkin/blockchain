@@ -19,9 +19,15 @@
 	<a href="/"><button>Resync</button></a>
     <a href="{{node_address}}/decrypt" target="_blank"><button>decrypt</button></a>
 
+    <h2>Your Invoices:</h2>
+    {% for invoice in invoices %}
+        {{invoice}} <br />
+    {% endfor %}
+
     <h2 style='background-color:red;'>Confirmed Transactions:</h2>
     {% for post in posts %}
         {{post}} <br />
     {% endfor %}
+
 </body>
 </html>

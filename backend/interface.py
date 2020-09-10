@@ -1,5 +1,5 @@
 from backend.block import Blockchain, Block
-from backend.cryptography.rsa import generate_private_key, generate_public_key, decrypt, encrypt
+from backend.cryptography.rsa import *
 from flask import Flask, request
 import time
 import json
@@ -11,6 +11,7 @@ app = Flask(__name__)
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
+address = load_address_from_file()
 
 #initialize our blockchain as an object
 blockchain = Blockchain()
@@ -18,6 +19,7 @@ blockchain = Blockchain()
 
 # Contains the host address of other participating members of this network
 peers = set()
+
 
 @app.route('/new_transactions', methods=['POST'])
 def new_transactions():

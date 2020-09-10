@@ -1,8 +1,4 @@
-Make a 'fetch invoices' button which will collect and decrypt all of the transactions sent to your address.
-Use consensus algorithm to make sure that for each transaction, there is an additional one sent to the chain custodian.
-
-
-Make output look a bit nicer.
-Remove and refactor redundant code.
-Tidy files and packages.
-Test across Raspberry PI network.
+Thursday: get address to work. Enable inputting address in frontend. get decryption working.
+Friday: Get it to work across a network.
+Saturday: put output into word document.
+Monday: make everything look pretty and email Elias.

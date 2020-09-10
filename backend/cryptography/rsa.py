@@ -3,6 +3,7 @@ This module contains the code for generating private and public keys.
 We are using the RSA algorithm to do this.
 """
 import sys
+from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from os import path
@@ -44,10 +45,35 @@ def generate_public_key():
     Generates a public key from the private key.
     Used in encrypting messages to be sent to node with the corresponding private key.
     """
-
     global public_key
     public_key = private_key.public_key()
 
+
+def load_address_from_file():
+    with open("node_address.txt", "r") as file:
+        address = file.read()
+        file.close()
+        return address
+
+
+def generate_address():
+    """
+    Generates this node's address by encrypting the public key.
+    Will generate a new public key if one doesn't exist.
+    """
+    if(public_key in globals()):
+        address = sha256(str(public_key).encode('utf-8')).hexdigest()
+    else:
+        generate_public_key()
+        address = sha256(str(public_key).encode('utf-8')).hexdigest()
+    write_to_file("node_address.txt", str(address))
+    return str(address)
+
+
+def write_to_file(file, data):
+    f = open(file, "w+")
+    f.write(data)
+    f.close()
 
 
 def encrypt(msg):
@@ -55,16 +81,16 @@ def encrypt(msg):
     Encrypts a message in string format
     :param: msg - String
     """
-    msg = b'' + bytes(msg, 'utf8')
+    mes = bytes(msg, 'utf8')
     ciphertext = public_key.encrypt(
-        msg,
+        mes,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),
             label=None
         )
     )
-    return ciphertext
+    return str(ciphertext)
 
 
 def decrypt(encrypted_msg):
