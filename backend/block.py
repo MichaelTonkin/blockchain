@@ -120,8 +120,8 @@ class Blockchain:
 
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-            new_transactions.append(Transaction(transaction["customer_id"], encrypt(transaction["weight"]),
-                                                encrypt(transaction["initial_id"]), encrypt(transaction["manufacturer_id"])
+            new_transactions.append(Transaction(transaction["customer_id"], quick_encrypt(transaction["weight"]),
+                                                quick_encrypt(transaction["initial_id"]), quick_encrypt(transaction["manufacturer_id"])
                                                 ).to_string())
 
         new_block = Block(transactions=new_transactions,
@@ -163,7 +163,7 @@ class Transaction:
         self.initID = initID #initial product id
         self.manuID = manuID #manugacturer product id
         self.weight = weight
-        self.timestamp = encrypt(str(datetime.now()))
+        self.timestamp = quick_encrypt(str(datetime.now()))
 
     def to_string(self):
         return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + str(self.manuID) + ' Weight_KG ' + str(self.weight) \

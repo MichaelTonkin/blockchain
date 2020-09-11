@@ -1,13 +1,13 @@
-from flask import redirect
-from backend.interface import *
+from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
-import sys, base64
+import sys, base64, requests, json
 from frontend import app
-from backend.interface import address
+from util import *
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 invoices = []
+address = load_address_from_file()
 
 @app.route('/')
 def index_page():
@@ -46,7 +46,7 @@ def fetch_posts():
                     customer = customer[0:len(customer)-1]
                     if customer == address:
                         encrypted = transaction.split(" ")
-                        decrypt_response = requests.post(decrypt_url, data=encrypted[1])
+                        decrypt_response = requests.post(decrypt_url, data=encrypted[1][1:])
                         invoices.append(decrypt_response.content)
 
         global posts

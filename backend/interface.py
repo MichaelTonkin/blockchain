@@ -1,17 +1,13 @@
 from backend.block import Blockchain, Block
 from backend.cryptography.rsa import *
 from flask import Flask, request
-import time
-import json
-import requests
-import sys
+import time, json, requests, sys, base64
 
 app = Flask(__name__)
 
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
-address = load_address_from_file()
 #initialize our blockchain as an object
 blockchain = Blockchain()
 
@@ -173,7 +169,7 @@ def verify_and_add_block():
 
     block_data = request.get_json(force=True)
 
-    block = Block(encrypt(block_data["transactions"].to_string()),
+    block = Block(block_data["transactions"].to_string(),
                   block_data["previous_hash"])
     proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
@@ -213,8 +209,10 @@ def mine_unconfirmed_transactions():
 @app.route('/decrypt', methods=['POST'])
 def decrypt_transaction():
     data = request.get_data()
-    print(data, sys.stdout)
-    decrypt(data)
-    return data
+    print("data = " + str(data), sys.stdout)
+    data = base64.b64decode(data)
+    decrypted = decrypt(data)
+    print("decry = " + str(decrypted), sys.stdout)
+    return decrypted
 
 

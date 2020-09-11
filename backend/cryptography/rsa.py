@@ -53,13 +53,6 @@ def generate_public_key():
     public_key = private_key.public_key()
 
 
-def load_address_from_file():
-    with open("node_address.txt", "r") as file:
-        address = file.read()
-        file.close()
-        return address
-
-
 def generate_address():
     """
     Generates this node's address by encrypting the public key.
@@ -94,6 +87,8 @@ def encrypt(msg):
             label=None
         )
     )
+    print(msg, sys.stdout)
+    print("cipher = " + str(ciphertext),sys.stdout)
     return ciphertext
 
 
