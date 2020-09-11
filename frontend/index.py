@@ -1,7 +1,7 @@
 from flask import redirect
 from backend.interface import *
 from jinja2 import Environment, PackageLoader, select_autoescape
-import sys
+import sys, base64
 from frontend import app
 from backend.interface import address
 
@@ -29,6 +29,7 @@ def fetch_posts():
     data, and store it locally.
     """
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
+    decrypt_url = "{}/decrypt".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
 
     if response.status_code == 200:
@@ -43,14 +44,10 @@ def fetch_posts():
                 if customer_pos is not -1:
                     customer = transaction[customer_pos + 9:]
                     customer = customer[0:len(customer)-1]
-                    print(customer)
                     if customer == address:
                         encrypted = transaction.split(" ")
-                        invoices.append(encrypted[1])
-                        #decrypt transactions before adding them to invoices
-                        #encrypted_str = transaction[78: len(transaction) - 18]
-                        #print(encrypted_str, sys.stdout)
-                        #invoices.append(decrypt(encrypted_str))
+                        decrypt_response = requests.post(decrypt_url, data=encrypted[1])
+                        invoices.append(decrypt_response.content)
 
         global posts
         posts = content

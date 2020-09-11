@@ -2,13 +2,15 @@
 This module contains the code for generating private and public keys.
 We are using the RSA algorithm to do this.
 """
-import sys
+import sys, base64
 from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from os import path
 
-keys = []
+priv_serial = None
+private_key = None
+public_key = None
 
 def generate_private_key():
     """
@@ -16,6 +18,8 @@ def generate_private_key():
     Should not be shared with any other nodes.
     """
     global private_key
+    global priv_serial
+
     filename = "private_key.pem"
     #check if there is a private key on file. If so, use that.
 
@@ -29,15 +33,15 @@ def generate_private_key():
             key_size=2048,
         )
 
-        #priv_serial holds a serialized version of the private key.
-        priv_serial = private_key.private_bytes(
-            encoding = serialization.Encoding.PEM,
-            format = serialization.PrivateFormat.PKCS8,
-            encryption_algorithm = serialization.NoEncryption()
+    #priv_serial holds a serialized version of the private key.
+    priv_serial = private_key.private_bytes(
+        encoding = serialization.Encoding.PEM,
+        format = serialization.PrivateFormat.PKCS8,
+        encryption_algorithm = serialization.NoEncryption()
         )
 
-        with open("private_key.pem", "wb") as key_file:
-            key_file.write(priv_serial)
+    with open("private_key.pem", "wb") as key_file:
+        key_file.write(priv_serial)
 
 
 def generate_public_key():
@@ -90,7 +94,7 @@ def encrypt(msg):
             label=None
         )
     )
-    return str(ciphertext)
+    return ciphertext
 
 
 def decrypt(encrypted_msg):
@@ -98,10 +102,10 @@ def decrypt(encrypted_msg):
     Decrypts a message in string format
     :param: encrypted_msg - an encrypted message
     """
-    print(encrypted_msg, sys.stdout)
 
+    cipher_pass = encrypted_msg
     decrypted_msg = private_key.decrypt(
-        encrypted_msg,
+        cipher_pass,
         padding.OAEP(
             mgf = padding.MGF1(algorithm=hashes.SHA256()),
             algorithm = hashes.SHA256(),
@@ -123,5 +127,10 @@ def load_key(filename):
         )
     return key
 
-
-
+"""
+generate_private_key()
+generate_public_key()
+test1 = "hello"
+test2 = encrypt(test1)
+print(decrypt(test2))
+"""

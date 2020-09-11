@@ -1,5 +1,6 @@
 import json
-from backend.cryptography.rsa import encrypt
+import base64
+from backend.cryptography.rsa import encrypt, decrypt
 from datetime import datetime
 from hashlib import sha256
 
@@ -46,6 +47,9 @@ class Block:
 
 
 
+def quick_encrypt(msg):
+    return base64.b64encode(encrypt(msg))
+
 class Blockchain:
     """
     The data structure for the blockchain. Manages storing blocks, mining algorithm, validity and PoW.
@@ -61,7 +65,7 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("UWE", encrypt("500"), encrypt("A0000"), "0").to_string()],
+        genesis_block = Block(transactions=[Transaction("UWE", quick_encrypt("500"), quick_encrypt("A0000"), "0").to_string()],
                               previous_hash="0000")
 
         self.chain.append(genesis_block)
@@ -162,5 +166,5 @@ class Transaction:
         self.timestamp = encrypt(str(datetime.now()))
 
     def to_string(self):
-        return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + self.manuID + ' Weight_KG ' + self.weight \
-               + ' Initial_Product_ID ' + self.initID + ' Customer ' + self.receiver + '}'
+        return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + str(self.manuID) + ' Weight_KG ' + str(self.weight) \
+               + ' Initial_Product_ID ' + str(self.initID) + ' Customer ' + str(self.receiver) + '}'

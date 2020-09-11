@@ -12,7 +12,6 @@ app = Flask(__name__)
 private_key = generate_private_key()
 public_key = generate_public_key()
 address = load_address_from_file()
-
 #initialize our blockchain as an object
 blockchain = Blockchain()
 
@@ -169,7 +168,7 @@ def consensus():
 
 @app.route('/add_block', methods=['POST'])
 def verify_and_add_block():
-    """Endpoint to add a block mined by somone else to the node's chain. The node first verifies the block and then
+    """Endpoint to add a block mined by someone else to the node's chain. The node first verifies the block and then
     adds it to the chain."""
 
     block_data = request.get_json(force=True)
@@ -211,8 +210,11 @@ def mine_unconfirmed_transactions():
         return "Block #{} is mined.".format(blockchain.last_block.__dict__)
 
 
-@app.route('/decrypt', methods=['GET'])
+@app.route('/decrypt', methods=['POST'])
 def decrypt_transaction():
-    decrypted = str(decrypt(blockchain.last_block.transactions[0]))
-    print(decrypted, sys.stdout)
-    return decrypted
+    data = request.get_data()
+    print(data, sys.stdout)
+    decrypt(data)
+    return data
+
+
