@@ -1,4 +1,3 @@
-Thursday: get address to work. Enable inputting address in frontend. get decryption working.
-Friday: Get it to work across a network.
-Saturday: put output into word document.
-Monday: make everything look pretty and email Elias.
+Implement Chain Custodian.
+Add another node to the network
+Add all nodes to the network.

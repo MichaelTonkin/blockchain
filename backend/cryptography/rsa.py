@@ -7,6 +7,7 @@ from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from os import path
+import os
 
 priv_serial = None
 private_key = None
@@ -24,7 +25,7 @@ def generate_private_key():
     #check if there is a private key on file. If so, use that.
 
     if path.exists(filename):
-        private_key = load_key(filename)
+        private_key = load_private_key(filename)
 
     else:
         #generate the private key
@@ -52,6 +53,14 @@ def generate_public_key():
     global public_key
     public_key = private_key.public_key()
 
+    #priv_serial holds a serialized version of the public key.
+    pub_serial = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+
+    with open("public_key.pem", "wb") as key_file:
+        key_file.write(pub_serial)
 
 def generate_address():
     """
@@ -77,9 +86,13 @@ def encrypt(msg):
     """
     Encrypts a message in string format
     :param: msg - String
+    :param: key - The public key used to encrypt the message
     """
     mes = bytes(msg, 'utf8')
-    ciphertext = public_key.encrypt(
+
+    pub_key = load_public_key(os.path.relpath("backend/public_keys/public_key.pem"))
+
+    ciphertext = pub_key.encrypt(
         mes,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -87,8 +100,7 @@ def encrypt(msg):
             label=None
         )
     )
-    print(msg, sys.stdout)
-    print("cipher = " + str(ciphertext),sys.stdout)
+
     return ciphertext
 
 
@@ -110,9 +122,9 @@ def decrypt(encrypted_msg):
     return decrypted_msg
 
 
-def load_key(filename):
+def load_private_key(filename):
     """
-    Loads public or private key from a .pem file
+    Loads private key from a .pem file
     """
     with open(filename, "rb") as key_file:
         key = serialization.load_pem_private_key(
@@ -121,6 +133,18 @@ def load_key(filename):
         backend = None
         )
     return key
+
+
+def load_public_key(filename):
+    """
+    Loads public key from a .pem file
+    """
+    with open(filename, "rb") as key_file:
+        key = serialization.load_pem_public_key(
+        key_file.read()
+        )
+    return key
+
 
 """
 generate_private_key()

@@ -6,7 +6,7 @@ from util import *
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
-invoices = []
+invoice_posts = []
 address = load_address_from_file()
 
 @app.route('/')
@@ -20,7 +20,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, invoices=invoices, node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(posts=posts, invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS)
 
 
 def fetch_posts():
@@ -34,6 +34,7 @@ def fetch_posts():
 
     if response.status_code == 200:
         content = []
+        invoices = []
         chain = json.loads(response.content)
 
         #iterate through each block and their transactions
@@ -46,10 +47,19 @@ def fetch_posts():
                     customer = customer[0:len(customer)-1]
                     if customer == address:
                         encrypted = transaction.split(" ")
-                        decrypt_response = requests.post(decrypt_url, data=encrypted[1][1:])
-                        invoices.append(decrypt_response.content)
+                        decrypt_response = []
+                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[1][1:]))
+                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[3][1:]))
+                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[5][1:]))
+                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[7][1:]))
+                        #construct decrypted transaction
+                        inv = {"Date: ": decrypt_response[0].content, "Manufacturer Product ID: ": decrypt_response[1].content,
+                               "Weight (KG): ": decrypt_response[2].content, "Initial Product ID: ": decrypt_response[3].content}
+                        invoices.append(inv)
 
         global posts
+        global invoice_posts
+        invoice_posts = invoices
         posts = content
 
 
@@ -62,12 +72,14 @@ def submit_textarea():
     initial_id = request.form["initial_id"]
     weight = request.form["weight"]
     customer_id = request.form["customer_id"]
+    public_key = request.form["public_key"]
 
     product_object = {
         'manufacturer_id': manufacturer_id,
         'initial_id': initial_id,
         'weight': weight,
         'customer_id': customer_id,
+        'public_key': public_key
     }
 
     # Submit a transaction

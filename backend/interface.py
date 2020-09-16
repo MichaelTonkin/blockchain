@@ -22,7 +22,7 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["initial_id", "weight", "customer_id"]
+    required_fields = ["public_key", "initial_id", "weight", "customer_id"]
 
     for field in required_fields:
         if not tx_data.get(field):

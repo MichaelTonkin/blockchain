@@ -65,7 +65,8 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("UWE", quick_encrypt("500"), quick_encrypt("A0000"), "0").to_string()],
+        genesis_block = Block(transactions=[Transaction("Genesis", quick_encrypt("500"), quick_encrypt("A0000",),
+                                                        quick_encrypt("BA0000")).to_string()],
                               previous_hash="0000")
 
         self.chain.append(genesis_block)
@@ -117,11 +118,18 @@ class Blockchain:
         last_block = self.last_block
 
         new_transactions = []
-
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
+            key = transaction["public_key"]
+
+            #We need to create a separate clone transaction that can be read by the chain custodian.
             new_transactions.append(Transaction(transaction["customer_id"], quick_encrypt(transaction["weight"]),
                                                 quick_encrypt(transaction["initial_id"]), quick_encrypt(transaction["manufacturer_id"])
+                                                ).to_string())
+
+            new_transactions.append(Transaction("Chain_Custodian", quick_encrypt(transaction["weight"]),
+                                                quick_encrypt(transaction["initial_id"]),
+                                                quick_encrypt(transaction["manufacturer_id"])
                                                 ).to_string())
 
         new_block = Block(transactions=new_transactions,
