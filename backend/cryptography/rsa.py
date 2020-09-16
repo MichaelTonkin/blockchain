@@ -6,6 +6,7 @@ import sys, base64
 from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.backends import default_backend
 from os import path
 import os
 
@@ -32,7 +33,7 @@ def generate_private_key():
         private_key = rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
-            backend=None
+            backend=default_backend()
         )
 
     #priv_serial holds a serialized version of the private key.
@@ -131,7 +132,7 @@ def load_private_key(filename):
         key = serialization.load_pem_private_key(
         key_file.read(),
         password = None,
-        backend = None
+        backend = default_backend()
         )
     return key
 
@@ -142,7 +143,8 @@ def load_public_key(filename):
     """
     with open(filename, "rb") as key_file:
         key = serialization.load_pem_public_key(
-        key_file.read()
+        key_file.read(),
+        backend = default_backend()
         )
     return key
 

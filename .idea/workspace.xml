@@ -50,8 +50,8 @@
       <file leaf-file-name="rsa.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/cryptography/rsa.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="440">
-              <caret line="34" column="24" selection-start-line="34" selection-start-column="24" selection-end-line="34" selection-end-column="24" />
+            <state relative-caret-position="335">
+              <caret line="146" column="35" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
               <folding>
                 <element signature="e#121#139#0" expanded="true" />
               </folding>
@@ -97,7 +97,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>/add</find>
       <find>block_data</find>
       <find>/moine</find>
       <find>announce</find>
@@ -127,6 +126,7 @@
       <find>load_address_from_file</find>
       <find>load_address</find>
       <find>load</find>
+      <find>load_pem</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -640,8 +640,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/cryptography/rsa.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="440">
-          <caret line="34" column="24" selection-start-line="34" selection-start-column="24" selection-end-line="34" selection-end-column="24" />
+        <state relative-caret-position="335">
+          <caret line="146" column="35" selection-start-line="146" selection-start-column="35" selection-end-line="146" selection-end-column="35" />
           <folding>
             <element signature="e#121#139#0" expanded="true" />
           </folding>
