@@ -47,11 +47,9 @@ def fetch_posts():
                     customer = customer[0:len(customer)-1]
                     if customer == address:
                         encrypted = transaction.split(" ")
-                        decrypt_response = []
-                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[1][1:]))
-                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[3][1:]))
-                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[5][1:]))
-                        decrypt_response.append(requests.post(decrypt_url, data=encrypted[7][1:]))
+                        decrypt_response = [] #holds segments of the invoice which need to be decrypted.
+                        for i in range(1, 9, 2):
+                            decrypt_response.append(requests.post(decrypt_url, data=encrypted[i][1:]))
                         #construct decrypted transaction
                         inv = {"Date: ": decrypt_response[0].content, "Manufacturer Product ID: ": decrypt_response[1].content,
                                "Weight (KG): ": decrypt_response[2].content, "Initial Product ID: ": decrypt_response[3].content}
@@ -72,14 +70,12 @@ def submit_textarea():
     initial_id = request.form["initial_id"]
     weight = request.form["weight"]
     customer_id = request.form["customer_id"]
-    public_key = request.form["public_key"]
 
     product_object = {
         'manufacturer_id': manufacturer_id,
         'initial_id': initial_id,
         'weight': weight,
-        'customer_id': customer_id,
-        'public_key': public_key
+        'customer_id': customer_id
     }
 
     # Submit a transaction

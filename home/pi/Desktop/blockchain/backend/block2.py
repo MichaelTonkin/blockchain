@@ -1,4 +1,5 @@
-import json, sys, base64
+import json
+import base64
 from backend.cryptography.rsa import encrypt, decrypt
 from datetime import datetime
 from hashlib import sha256
@@ -7,11 +8,11 @@ class Block:
     """
     The datastructure for a single block on the blockchain.
     """
-    def __init__(self, transactions, timestamp, previous_hash):
+    def __init__(self, transactions, previous_hash):
         self.transactions = []
         self.transactions_to_string_list(transactions)
         self.previous_hash = previous_hash
-        self.timestamp = timestamp
+        self.timestamp = str(datetime.now())
         self.nonce = 0
         self.block_hash = self.calculate_block_hash()
 
@@ -61,13 +62,13 @@ class Blockchain:
         self.tail = None
         self.chain = [] # the blocks themselves are stored here
         self.unconfirmed_transactions = []
+        self.create_genesis_block()
 
     def create_genesis_block(self):
         genesis_block = Block(transactions=[Transaction("Genesis", quick_encrypt("500"), quick_encrypt("A0000",),
                                                         quick_encrypt("BA0000")).to_string()],
-                              previous_hash="0000",
-                              timestamp=str(datetime.now()))
-        self.proof_of_work(genesis_block)
+                              previous_hash="0000")
+
         self.chain.append(genesis_block)
 
     #used to quickly index into the most recently added block in the chain.
@@ -82,16 +83,13 @@ class Blockchain:
         previous_hash = self.last_block.get_block_hash()
 
         if previous_hash != self.last_block.get_block_hash():
-            print("previous hash is bad", sys.stdout)
             return False
 
         if not Blockchain.is_valid_proof(self, block, proof):
-            print("proof is invalid just like you!", sys.stdout)
             return False
 
         block.previous_hash = previous_hash
         self.chain.append(block)
-        print("add block = True", sys.stdout)
         return True
 
     def proof_of_work(self, block):
@@ -109,10 +107,9 @@ class Blockchain:
         check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        print("hash = " + str(block_hash), sys.stdout)
-        print("block hash = " + str(block.get_block_hash()), sys.stdout)
+
         return (block_hash.startswith('0' * Blockchain.difficulty) and
-                block_hash == block.calculate_block_hash())
+                block_hash == block.get_block_hash())
 
     def mine(self):
         if not self.unconfirmed_transactions: #check that there is something to mine
@@ -135,7 +132,6 @@ class Blockchain:
                                                 ).to_string())
 
         new_block = Block(transactions=new_transactions,
-                          timestamp=str(datetime.now()),
                           previous_hash=last_block.get_previous_hash())
 
         proof = self.proof_of_work(new_block)

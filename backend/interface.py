@@ -10,7 +10,7 @@ private_key = generate_private_key()
 public_key = generate_public_key()
 #initialize our blockchain as an object
 blockchain = Blockchain()
-
+blockchain.create_genesis_block()
 
 # Contains the host address of other participating members of this network
 peers = set()
@@ -22,7 +22,7 @@ def new_transactions():
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
     """
     tx_data = request.get_json()
-    required_fields = ["public_key", "initial_id", "weight", "customer_id"]
+    required_fields = ["initial_id", "weight", "customer_id"]
 
     for field in required_fields:
         if not tx_data.get(field):
@@ -125,15 +125,18 @@ def register_with_existing_node():
 def create_chain_from_dump(chain_dump):
     bc = Blockchain()
     for idx, block_data in enumerate(chain_dump):
-        block = Block(block_data["transactions"],
-                      block_data["previous_hash"])
+        block = Block(transactions=block_data["transactions"],
+                      timestamp=block_data["timestamp"],
+                      previous_hash=block_data["previous_hash"])
         proof = block_data['hash']
         if idx > 0:
             added = bc.add_block(block, proof)
+            print("added = " + str(added), sys.stdout)
             if not added:
                 raise Exception("The chain dump is tampered!")
         else:  # the block is a genesis block, no verification needed
             bc.chain.append(block)
+    print("bc = " + str(bc.__dict__), sys.stdout)
     return bc
 
 def consensus():
@@ -147,7 +150,10 @@ def consensus():
     current_len = len(blockchain.chain)
 
     for node in peers:
-        response = requests.get('{}/chain'.format(node))
+        response = requests.get('{}chain'.format(node))
+
+        print(response.__dict__, sys.stdout)
+
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
@@ -167,10 +173,13 @@ def verify_and_add_block():
     """Endpoint to add a block mined by someone else to the node's chain. The node first verifies the block and then
     adds it to the chain."""
 
+    print("adding new blocks... ", sys.stdout)
+
     block_data = request.get_json(force=True)
 
-    block = Block(block_data["transactions"].to_string(),
-                  block_data["previous_hash"])
+    block = Block(transactions=block_data["transactions"],
+                  timestamp=block_data["timestamp"],
+                  previous_hash=block_data["previous_hash"])
     proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
 
@@ -187,7 +196,7 @@ def announce_new_block(block):
     respective chains.
     """
     for peer in peers:
-        url = "{}add_block".format(peer)
+        url = "{}/add_block".format(peer)
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
 
@@ -209,10 +218,8 @@ def mine_unconfirmed_transactions():
 @app.route('/decrypt', methods=['POST'])
 def decrypt_transaction():
     data = request.get_data()
-    print("data = " + str(data), sys.stdout)
     data = base64.b64decode(data)
     decrypted = decrypt(data)
-    print("decry = " + str(decrypted), sys.stdout)
     return decrypted
 
 

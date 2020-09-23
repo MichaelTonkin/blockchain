@@ -148,11 +148,3 @@ def load_public_key(filename):
         )
     return key
 
-
-"""
-generate_private_key()
-generate_public_key()
-test1 = "hello"
-test2 = encrypt(test1)
-print(decrypt(test2))
-"""
