@@ -180,6 +180,10 @@ def verify_and_add_block():
     block = Block(transactions=block_data["transactions"],
                   timestamp=block_data["timestamp"],
                   previous_hash=block_data["previous_hash"])
+
+    block.block_hash = block_data["hash"]
+    print("verify add block hash = " + str(block.block_hash))
+
     proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
 

@@ -13,10 +13,10 @@ class Block:
         self.previous_hash = previous_hash
         self.timestamp = timestamp
         self.nonce = 0
-        self.block_hash = self.calculate_block_hash()
+        self.block_hash = None
 
     def calculate_block_hash(self):
-        block_string = json.dumps(str(self.__dict__), sort_keys=True)
+        block_string = json.dumps(self.__dict__, sort_keys=True)
         hash = sha256(block_string.encode()).hexdigest()
         self.block_hash = hash
         return hash
@@ -45,9 +45,9 @@ class Block:
                str(self.timestamp) + " Hash: " + str(self.block_hash))
 
 
-
 def quick_encrypt(msg):
     return base64.b64encode(encrypt(msg))
+
 
 class Blockchain:
     """
@@ -109,10 +109,8 @@ class Blockchain:
         check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        print("hash = " + str(block_hash), sys.stdout)
-        print("block hash = " + str(block.get_block_hash()), sys.stdout)
         return (block_hash.startswith('0' * Blockchain.difficulty) and
-                block_hash == block.calculate_block_hash())
+                block_hash == block.block_hash)
 
     def mine(self):
         if not self.unconfirmed_transactions: #check that there is something to mine
@@ -137,6 +135,7 @@ class Blockchain:
         new_block = Block(transactions=new_transactions,
                           timestamp=str(datetime.now()),
                           previous_hash=last_block.get_previous_hash())
+        new_block.calculate_block_hash()
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block, proof)
