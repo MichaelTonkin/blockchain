@@ -128,15 +128,15 @@ def create_chain_from_dump(chain_dump):
         block = Block(transactions=block_data["transactions"],
                       timestamp=block_data["timestamp"],
                       previous_hash=block_data["previous_hash"])
-        proof = block_data['hash']
+        block.block_hash = block_data["hash"]
+        proof = block_data["hash"]
+
         if idx > 0:
             added = bc.add_block(block, proof)
-            print("added = " + str(added), sys.stdout)
             if not added:
                 raise Exception("The chain dump is tampered!")
         else:  # the block is a genesis block, no verification needed
             bc.chain.append(block)
-    print("bc = " + str(bc.__dict__), sys.stdout)
     return bc
 
 def consensus():
@@ -151,8 +151,6 @@ def consensus():
 
     for node in peers:
         response = requests.get('{}chain'.format(node))
-
-        print(response.__dict__, sys.stdout)
 
         length = response.json()['length']
         chain = response.json()['chain']
@@ -179,9 +177,9 @@ def verify_and_add_block():
 
     block = Block(transactions=block_data["transactions"],
                   timestamp=block_data["timestamp"],
-                  previous_hash=block_data["previous_hash"])
-
-    block.block_hash = block_data["hash"]
+                  previous_hash=block_data["previous_hash"]
+                  )
+    block.block_hash = block_data["block_hash"]
     print("verify add block hash = " + str(block.block_hash))
 
     proof = block_data['block_hash']
@@ -200,8 +198,11 @@ def announce_new_block(block):
     respective chains.
     """
     for peer in peers:
-        url = "{}/add_block".format(peer)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        url = "{}add_block".format(peer)
+        headers = {'Content-Type': "application/json"}
+        requests.post(url,
+                      data=json.dumps(block.__dict__, sort_keys=True),
+                      headers=headers)
 
 
 @app.route('/mine', methods=['GET'])

@@ -67,6 +67,7 @@ class Blockchain:
                                                         quick_encrypt("BA0000")).to_string()],
                               previous_hash="0000",
                               timestamp=str(datetime.now()))
+        genesis_block.calculate_block_hash()
         self.proof_of_work(genesis_block)
         self.chain.append(genesis_block)
 
@@ -109,6 +110,8 @@ class Blockchain:
         check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
+        print("block_hash = " + str(block_hash), sys.stdout)
+        print("block.block_hash = " + str(block.block_hash), sys.stdout)
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.block_hash)
 
