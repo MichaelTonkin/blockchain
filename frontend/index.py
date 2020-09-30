@@ -2,12 +2,11 @@ from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
 import sys, base64, requests, json
 from frontend import app
-from util import *
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 invoice_posts = []
-address = load_address_from_file()
+address = None
 
 @app.route('/')
 def index_page():
@@ -59,6 +58,29 @@ def fetch_posts():
         global invoice_posts
         invoice_posts = invoices
         posts = content
+
+
+@app.route('/set_address', methods=['POST'])
+def get_address_from_user():
+    global address
+    address = request.form["address"]
+
+    return redirect('/')
+
+
+@app.route('/submit_public_key', methods=['POST'])
+def set_public_key():
+
+    key = request.form["key"]
+
+    forward_address = "{}/set_public_key".format(CONNECTED_NODE_ADDRESS)
+
+    requests.post(forward_address,
+                  json=key,
+                  headers={'Content-type': 'application/json'})
+
+    return redirect('/')
+
 
 
 @app.route('/submit', methods=['POST'])

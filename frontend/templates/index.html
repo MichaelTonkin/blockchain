@@ -18,6 +18,19 @@
     <a href="{{node_address}}/mine" target="_blank"><button>Mine Transactions</button></a>
 	<a href="/"><button>Resync</button></a>
 
+    <p>Enter the name of your corporation here. The system will make and attempt to decrypt your invoices and send them to you.</p>
+
+    <form action="/set_address" method="post">
+        <input type="text" name="address" placeholder="Get Transactions From...">
+        <input type="submit">
+    </form>
+
+    <p>Set the public key that you want to use to encrypt your message. This key should be provided to you by the recipient of your invoice.</p>
+    <form action="/submit_public_key" method="post">
+        <input type="text" name="key" placeholder="Public Key">
+        <input type="submit">
+    </form>
+
     <h2>Your Invoices:</h2>
     {% for invoice in invoices %}
         {{invoice}} <br />

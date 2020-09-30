@@ -3,6 +3,7 @@ This module contains the code for generating private and public keys.
 We are using the RSA algorithm to do this.
 """
 import sys, base64
+from util import *
 from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
@@ -13,6 +14,13 @@ import os
 priv_serial = None
 private_key = None
 public_key = None
+public_key_name = ""
+
+
+def set_public_key_name(name):
+    global public_key_name
+    public_key_name = name
+
 
 def generate_private_key():
     """
@@ -90,9 +98,18 @@ def encrypt(msg):
     :param: msg - String
     :param: key - The public key used to encrypt the message
     """
+    global public_key_name
+
+    public_key_name = load_from_file("public_key_name.txt")
+
     mes = bytes(msg, 'utf8')
 
-    pub_key = load_public_key(os.path.relpath("backend/public_keys/public_key.pem"))
+    if(public_key_name == ""):
+        pub_key = load_public_key(os.path.relpath("backend/public_keys/public_key.pem" + public_key_name))
+    else:
+        pub_key = load_public_key(os.path.relpath("backend/public_keys/" + public_key_name))
+
+    print("public key = " + public_key_name, sys.stdout)
 
     ciphertext = pub_key.encrypt(
         mes,

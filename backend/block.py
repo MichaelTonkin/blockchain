@@ -83,16 +83,13 @@ class Blockchain:
         previous_hash = self.last_block.get_block_hash()
 
         if previous_hash != self.last_block.get_block_hash():
-            print("previous hash is bad", sys.stdout)
             return False
 
         if not Blockchain.is_valid_proof(self, block, proof):
-            print("proof is invalid just like you!", sys.stdout)
             return False
 
         block.previous_hash = previous_hash
         self.chain.append(block)
-        print("add block = True", sys.stdout)
         return True
 
     def proof_of_work(self, block):
@@ -110,8 +107,6 @@ class Blockchain:
         check if block_hash is valid hash of block and satisfies
         the difficulty criteria.
         """
-        print("block_hash = " + str(block_hash), sys.stdout)
-        print("block.block_hash = " + str(block.block_hash), sys.stdout)
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.block_hash)
 

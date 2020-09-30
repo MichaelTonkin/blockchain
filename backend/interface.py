@@ -16,6 +16,15 @@ blockchain.create_genesis_block()
 peers = set()
 
 
+@app.route('/set_public_key', methods=['POST'])
+def set_public_key():
+
+    key_data = request.get_json()
+
+    write_to_file("public_key_name.txt", key_data)
+    return "Success", 201
+
+
 @app.route('/new_transactions', methods=['POST'])
 def new_transactions():
     """
@@ -171,8 +180,6 @@ def verify_and_add_block():
     """Endpoint to add a block mined by someone else to the node's chain. The node first verifies the block and then
     adds it to the chain."""
 
-    print("adding new blocks... ", sys.stdout)
-
     block_data = request.get_json(force=True)
 
     block = Block(transactions=block_data["transactions"],
@@ -180,7 +187,6 @@ def verify_and_add_block():
                   previous_hash=block_data["previous_hash"]
                   )
     block.block_hash = block_data["block_hash"]
-    print("verify add block hash = " + str(block.block_hash))
 
     proof = block_data['block_hash']
     added = blockchain.add_block(block, proof)
