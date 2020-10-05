@@ -93,10 +93,33 @@ def register_new_peers():
         return "Invalid data", 400
 
     # add the node to the peer list
+    #TODO ensure there are no duplicates
     peers.add(node_address)
     peers.add(contacted_address)
 
+    #announce the updated list of peers to the network
+    announce_new_peers()
+
     return get_chain()
+
+
+@app.route('/update_peers', methods=['POST'])
+def update_peers():
+    global peers
+    new_peers = request.get_json()
+    print("updated peers = " + str(new_peers), sys.stdout)
+    peers = set(new_peers)
+
+    return '/'
+
+def announce_new_peers():
+    """Sends a list of peers across the network"""
+    for peer in peers:
+        if peer != current_ip:
+            url = "{}update_peers".format(peer)
+            print("updating peers for: " + str(url), sys.stdout)
+            headers = {'Content-Type': "application/json"}
+            requests.post(url, data=json.dumps(list(peers)), headers=headers)
 
 
 @app.route('/register_with', methods=['POST'])
@@ -212,7 +235,6 @@ def announce_new_block(block):
     respective chains.
     """
     for peer in peers:
-        #TODO make it so we're not trying to add to our own node
         if peer != current_ip:
             url = "{}add_block".format(peer)
             print("adding block @ " + str(url), sys.stdout)

@@ -14,8 +14,8 @@
       <file leaf-file-name="interface.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/backend/interface.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="215" column="64" lean-forward="true" selection-start-line="215" selection-start-column="64" selection-end-line="215" selection-end-column="64" />
+            <state relative-caret-position="437">
+              <caret line="120" column="42" selection-start-line="120" selection-start-column="42" selection-end-line="120" selection-end-column="42" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -76,9 +76,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>load_address</find>
-      <find>load</find>
-      <find>load_pem</find>
       <find>public_key</find>
       <find>create_chain_from_dump</find>
       <find>new_bl</find>
@@ -106,6 +103,9 @@
       <find>block_data</find>
       <find>consensus</find>
       <find>response.json()['peers</find>
+      <find>node =</find>
+      <find>adding b</find>
+      <find>peer</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -626,8 +626,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/backend/interface.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="215" column="64" lean-forward="true" selection-start-line="215" selection-start-column="64" selection-end-line="215" selection-end-column="64" />
+        <state relative-caret-position="437">
+          <caret line="120" column="42" selection-start-line="120" selection-start-column="42" selection-end-line="120" selection-end-column="42" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
