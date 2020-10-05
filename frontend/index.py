@@ -19,7 +19,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(posts=posts, invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS)
 
 
 def fetch_posts():

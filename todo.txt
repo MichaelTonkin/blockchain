@@ -1,3 +1,0 @@
-Implement Chain Custodian.
-Add another node to the network
-Add all nodes to the network.

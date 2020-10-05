@@ -1,5 +1,5 @@
 import json, sys, base64
-from backend.cryptography.rsa import encrypt, decrypt
+from backend.cryptography.rsa import encrypt
 from datetime import datetime
 from hashlib import sha256
 
@@ -45,8 +45,13 @@ class Block:
                str(self.timestamp) + " Hash: " + str(self.block_hash))
 
 
-def quick_encrypt(msg):
-    return base64.b64encode(encrypt(msg))
+def quick_encrypt(msg, custodian):
+    """Applies encoding to encryption function to allow it to pass through the network.
+    Parameters:
+        String msg - The string to encrypt
+        Boolean custodian - true if we want to use the chain custodian's public key rather than a user defined one.
+        """
+    return base64.b64encode(encrypt(msg, custodian))
 
 
 class Blockchain:
@@ -59,12 +64,13 @@ class Blockchain:
 
     def __init__(self):
         self.tail = None
-        self.chain = [] # the blocks themselves are stored here
+        self.chain = []
         self.unconfirmed_transactions = []
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("Genesis", quick_encrypt("500"), quick_encrypt("A0000",),
-                                                        quick_encrypt("BA0000")).to_string()],
+        genesis_block = Block(transactions=[Transaction("Genesis", quick_encrypt("500", True), quick_encrypt("A0000", True),
+                                                        quick_encrypt("BA0000", True), quick_encrypt(str(datetime.now()), True))
+                              .to_string()],
                               previous_hash="0000",
                               timestamp=str(datetime.now()))
         genesis_block.calculate_block_hash()
@@ -83,9 +89,11 @@ class Blockchain:
         previous_hash = self.last_block.get_block_hash()
 
         if previous_hash != self.last_block.get_block_hash():
+            print("Previous hash is incorrect", sys.stdout)
             return False
 
         if not Blockchain.is_valid_proof(self, block, proof):
+            print("proof is invalid", sys.stdout)
             return False
 
         block.previous_hash = previous_hash
@@ -108,7 +116,7 @@ class Blockchain:
         the difficulty criteria.
         """
         return (block_hash.startswith('0' * Blockchain.difficulty) and
-                block_hash == block.block_hash)
+                block_hash == self.proof_of_work(block))
 
     def mine(self):
         if not self.unconfirmed_transactions: #check that there is something to mine
@@ -121,13 +129,18 @@ class Blockchain:
         for transaction in self.unconfirmed_transactions:
 
             #We need to create a separate clone transaction that can be read by the chain custodian.
-            new_transactions.append(Transaction(transaction["customer_id"], quick_encrypt(transaction["weight"]),
-                                                quick_encrypt(transaction["initial_id"]), quick_encrypt(transaction["manufacturer_id"])
+            new_transactions.append(Transaction(transaction["customer_id"],
+                                                quick_encrypt(transaction["weight"], False),
+                                                quick_encrypt(transaction["initial_id"], False),
+                                                quick_encrypt(transaction["manufacturer_id"], False),
+                                                quick_encrypt(str(datetime.now()), False)
                                                 ).to_string())
 
-            new_transactions.append(Transaction("Chain_Custodian", quick_encrypt(transaction["weight"]),
-                                                quick_encrypt(transaction["initial_id"]),
-                                                quick_encrypt(transaction["manufacturer_id"])
+            new_transactions.append(Transaction("Chain_Custodian",
+                                                quick_encrypt(transaction["weight"], True),
+                                                quick_encrypt(transaction["initial_id"], True),
+                                                quick_encrypt(transaction["manufacturer_id"], True),
+                                                quick_encrypt(str(datetime.now()), True)
                                                 ).to_string())
 
         new_block = Block(transactions=new_transactions,
@@ -146,32 +159,34 @@ class Blockchain:
         A helper method to check if the entire blockchain is valid.
         """
         result = True
-        previous_hash = "0"
+        previous_hash = "0000"
 
         # Iterate through every block
         for block in chain:
-            block_hash = block.get_block_hash()
-            # remove the hash field to recompute the hash again
-            # using "compute_hash" method.
-            delattr(block, "hash")
+            #we create a new block for ease of use as in some cases the data passed to chain may be in string format.
+            new_block = Block(transactions=block["transactions"], timestamp=block["timestamp"],
+                              previous_hash=block["previous_hash"])
+            new_block.block_hash = block["hash"]
+            block_hash = block["hash"]
 
-            if not cls.is_valid_proof(block, block.get_block_hash()) or \
-                    previous_hash != block.previous_hash:
+            if not cls.is_valid_proof(new_block, block_hash) or \
+                    previous_hash != new_block.previous_hash:
+                print("Error - previous hash is incorrect or proof is invalid", sys.stdout)
                 result = False
                 break
 
-            block.get_block_hash, previous_hash = block_hash, block_hash
+            previous_hash = block_hash
 
         return result
 
 
 class Transaction:
-    def __init__(self, receiver, weight, initID, manuID):
+    def __init__(self, receiver, weight, initID, manuID, timestamp):
         self.receiver = receiver #the address of the node recieving this transaction
         self.initID = initID #initial product id
         self.manuID = manuID #manugacturer product id
         self.weight = weight
-        self.timestamp = quick_encrypt(str(datetime.now()))
+        self.timestamp = timestamp
 
     def to_string(self):
         return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + str(self.manuID) + ' Weight_KG ' + str(self.weight) \

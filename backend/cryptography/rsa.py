@@ -92,15 +92,17 @@ def write_to_file(file, data):
     f.close()
 
 
-def encrypt(msg):
+def encrypt(msg, custodian):
     """
     Encrypts a message in string format
     :param: msg - String
     :param: key - The public key used to encrypt the message
     """
     global public_key_name
-
-    public_key_name = load_from_file("public_key_name.txt")
+    if custodian:
+        public_key_name = "chain_custodian.pem"
+    else:
+        public_key_name = load_from_file("public_key_name.txt")
 
     mes = bytes(msg, 'utf8')
 
@@ -108,8 +110,6 @@ def encrypt(msg):
         pub_key = load_public_key(os.path.relpath("backend/public_keys/public_key.pem" + public_key_name))
     else:
         pub_key = load_public_key(os.path.relpath("backend/public_keys/" + public_key_name))
-
-    print("public key = " + public_key_name, sys.stdout)
 
     ciphertext = pub_key.encrypt(
         mes,

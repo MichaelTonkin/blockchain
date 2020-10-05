@@ -4,13 +4,15 @@ from flask import Flask, request
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
-
+print("backend is working", sys.stdout)
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
 #initialize our blockchain as an object
 blockchain = Blockchain()
 blockchain.create_genesis_block()
+
+current_ip = None
 
 # Contains the host address of other participating members of this network
 peers = set()
@@ -86,11 +88,13 @@ def register_new_peers():
 
     # The host address to the peer node
     node_address = request.get_json()["node_address"]
+    contacted_address = request.get_json()["contacted_address"]
     if not node_address:
         return "Invalid data", 400
 
     # add the node to the peer list
     peers.add(node_address)
+    peers.add(contacted_address)
 
     return get_chain()
 
@@ -103,17 +107,20 @@ def register_with_existing_node():
     request, and sync the blockchain as well as peer data.
     """
 
-    node_address = request.get_json()["node_address"]
+    global current_ip
 
+    contacted_address = request.get_json()["node_address"]
 
-    if not node_address:
+    if not contacted_address:
         return "Invalid data", 400
 
-    data = {"node_address": request.host_url}
+    data = {"node_address": request.host_url, "contacted_address": contacted_address}
     headers = {'Content-Type': "application/json"}
 
+    current_ip = request.host_url
+
     # Make a request to register with remote node and obtain information
-    response = requests.post(node_address + "/register_node",
+    response = requests.post(contacted_address + "register_node",
                              data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
@@ -157,10 +164,8 @@ def consensus():
 
     longest_chain = None
     current_len = len(blockchain.chain)
-
     for node in peers:
         response = requests.get('{}chain'.format(node))
-
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
@@ -180,8 +185,9 @@ def verify_and_add_block():
     """Endpoint to add a block mined by someone else to the node's chain. The node first verifies the block and then
     adds it to the chain."""
 
-    block_data = request.get_json(force=True)
+    print("New block received from network...", sys.stdout)
 
+    block_data = request.get_json(force=True)
     block = Block(transactions=block_data["transactions"],
                   timestamp=block_data["timestamp"],
                   previous_hash=block_data["previous_hash"]
@@ -192,8 +198,10 @@ def verify_and_add_block():
     added = blockchain.add_block(block, proof)
 
     if not added:
+        print("block discarded by node", sys.stdout)
         return "The block was discarded by the node", 400
 
+    print("block added to chain", sys.stdout)
     return "Block added to the chain", 201
 
 
@@ -204,17 +212,23 @@ def announce_new_block(block):
     respective chains.
     """
     for peer in peers:
-        url = "{}add_block".format(peer)
-        headers = {'Content-Type': "application/json"}
-        requests.post(url,
-                      data=json.dumps(block.__dict__, sort_keys=True),
-                      headers=headers)
+        #TODO make it so we're not trying to add to our own node
+        if peer != current_ip:
+            url = "{}add_block".format(peer)
+            print("adding block @ " + str(url), sys.stdout)
+            headers = {'Content-Type': "application/json"}
+            requests.post(url,
+                          data=json.dumps(block.__dict__, sort_keys=True),
+                          headers=headers)
 
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
+    global blockchain
+
     result = blockchain.mine()
     if not result:
+        print("No transactions to mine", sys.stdout)
         return "No transactions to mine"
     else:
         # Making sure we have the longest chain before announcing to the network
