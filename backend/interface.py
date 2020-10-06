@@ -1,7 +1,7 @@
 from backend.block import Blockchain, Block
 from backend.cryptography.rsa import *
 from flask import Flask, request
-import time, json, requests, sys, base64
+import time, json, requests, sys, base64, threading
 
 app = Flask(__name__)
 print("backend is working", sys.stdout)
@@ -112,6 +112,7 @@ def update_peers():
 
     return '/'
 
+
 def announce_new_peers():
     """Sends a list of peers across the network"""
     for peer in peers:
@@ -178,6 +179,7 @@ def create_chain_from_dump(chain_dump):
             bc.chain.append(block)
     return bc
 
+
 def consensus():
     """
     The consensus algorithm to determine which instance of the chain our network should use. If a longer valid chain is
@@ -239,10 +241,18 @@ def announce_new_block(block):
             url = "{}add_block".format(peer)
             print("adding block @ " + str(url), sys.stdout)
             headers = {'Content-Type': "application/json"}
-            requests.post(url,
-                          data=json.dumps(block.__dict__, sort_keys=True),
-                          headers=headers)
+            x = threading.Thread(target=announce_new_block_helper(
+                                url=url, block=block, headers=headers
+                                )
+                                 , args=(1,))
+            x.start()
+            print("Request to add block finished sending", sys.stdout)
 
+
+def announce_new_block_helper(url, block, headers):
+    requests.post(url,
+                  data=json.dumps(block.__dict__, sort_keys=True),
+                  headers=headers)
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
