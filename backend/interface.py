@@ -1,7 +1,7 @@
 from backend.block import Blockchain, Block
 from backend.cryptography.rsa import *
 from flask import Flask, request
-import time, json, requests, sys, base64, threading
+import time, json, requests, sys, base64, threading, zlib
 
 app = Flask(__name__)
 print("backend is working", sys.stdout)
@@ -191,6 +191,7 @@ def consensus():
     current_len = len(blockchain.chain)
     for node in peers:
         response = requests.get('{}chain'.format(node))
+        print("chain = " + str(response.__dict__), sys.stdout)
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
@@ -236,6 +237,7 @@ def announce_new_block(block):
     Other blocks can simply verify the proof of work and add it to their
     respective chains.
     """
+    args = 1
     for peer in peers:
         if peer != current_ip:
             url = "{}add_block".format(peer)
@@ -244,16 +246,20 @@ def announce_new_block(block):
             x = threading.Thread(target=announce_new_block_helper(
                                 url=url, block=block, headers=headers
                                 )
-                                 , args=(1,))
+                                 , args=(args,))
             x.start()
+            args += 1
             print("Request to add block finished sending", sys.stdout)
 
 
 def announce_new_block_helper(url, block, headers):
-    requests.post(url,
-                  data=json.dumps(block.__dict__, sort_keys=True),
-                  headers=headers)
+    #TODO theading probably isn't working. Also I suspect POST method is awaiting response from the other node before
+    #continuing on with the next one.
+    print("executing now...")
+    requests.post(url, data=json.dumps(block.__dict__, sort_keys=True), headers=headers, verify=True, timeout=60)
 
+
+#sort_keys=False put it in json.dumps
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     global blockchain
