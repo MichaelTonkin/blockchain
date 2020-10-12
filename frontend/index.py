@@ -6,6 +6,7 @@ from frontend import app
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 invoice_posts = []
+errors = []
 address = None
 
 @app.route('/')
@@ -19,7 +20,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS, errors=errors)
 
 
 def fetch_posts():
@@ -50,8 +51,12 @@ def fetch_posts():
                         for i in range(1, 9, 2):
                             decrypt_response.append(requests.post(decrypt_url, data=encrypted[i][1:]))
                         #construct decrypted transaction
-                        inv = {"Date: ": decrypt_response[0].content, "Manufacturer Product ID: ": decrypt_response[1].content,
-                               "Weight (KG): ": decrypt_response[2].content, "Initial Product ID: ": decrypt_response[3].content}
+                        item1 = decrypt_response[0].content.decode('utf-8')
+                        item2 = decrypt_response[1].content.decode('utf-8')
+                        item3 = decrypt_response[2].content.decode('utf-8')
+                        item4 = decrypt_response[3].content.decode('utf-8')
+                        inv = {"Date": item1, "Manufacturer Product ID": item2,
+                               "Weight (KG)": item3, "Initial Product ID": item4}
                         invoices.append(inv)
 
         global posts
@@ -100,12 +105,15 @@ def submit_textarea():
         'customer_id': customer_id
     }
 
-    # Submit a transaction
-    new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
+    if not (isinstance(product_object['weight'], float) or isinstance(product_object['weight'], int)):
+        errors.append("Error - weight is not a number")
+    else:
+        # Submit a transaction
+        new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
 
-    requests.post(new_tx_address,
-                  json=product_object,
-                  headers={'Content-type': 'application/json'})
+        requests.post(new_tx_address,
+                      json=product_object,
+                      headers={'Content-type': 'application/json'})
 
     # Return to the homepage
     return redirect('/')

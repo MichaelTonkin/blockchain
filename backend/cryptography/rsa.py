@@ -8,6 +8,7 @@ from hashlib import sha256
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.backends import default_backend
+from cryptography.exceptions import InvalidKey
 from os import path
 import os
 
@@ -130,14 +131,20 @@ def decrypt(encrypted_msg):
     """
 
     cipher_pass = encrypted_msg
-    decrypted_msg = private_key.decrypt(
-        cipher_pass,
-        padding.OAEP(
-            mgf = padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm = hashes.SHA256(),
-            label = None
+
+    try:
+        decrypted_msg = private_key.decrypt(
+            cipher_pass,
+            padding.OAEP(
+                mgf = padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm = hashes.SHA256(),
+                label = None
+            )
         )
-    )
+    except InvalidKey:
+        print("Error - unable to decrypt message.")
+        decrypted_msg = "Error - unable to decrypt message."
+
     return decrypted_msg
 
 

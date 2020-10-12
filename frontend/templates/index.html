@@ -18,6 +18,10 @@
     <a href="{{node_address}}/mine" target="_blank"><button>Mine Transactions</button></a>
 	<a href="/"><button>Resync</button></a>
 
+    {% for error in errors %}
+        {{error}} <br />
+    {% endfor %}
+
     <p>Enter the name of your corporation here. The system will make and attempt to decrypt your invoices and send them to you.</p>
 
     <form action="/set_address" method="post">
@@ -33,7 +37,8 @@
 
     <h2>Your Invoices:</h2>
     {% for invoice in invoices %}
-        {{invoice}} <br />
+        {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
+    ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />
     {% endfor %}
 
 </body>

@@ -1,2 +1,2 @@
-export FLASK_APP=backend/interface.py
-flask run --port 8000
+export FLASK_APP=backend/interface
+flask run --port 8000 --host=0.0.0.0

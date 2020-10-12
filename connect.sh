@@ -1,4 +1,4 @@
 curl -X POST \
-  http://pi-4e9fba67.localhost.run/register_with \
+  http://youriphere/register_with \
   -H 'Content-Type: application/json' \
-  -d '{"node_address": "http://michael-2b2b157b.localhost.run"}'
+  -d '{"node_address": "http://192.168.0.14:8000/"}'
