@@ -6,6 +6,7 @@ from frontend import app
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
 invoice_posts = []
+errors = []
 address = None
 
 @app.route('/')
@@ -19,7 +20,7 @@ def index_page():
 
     template = env.get_template('index.html')
 
-    return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS, errors=errors)
 
 
 def fetch_posts():
@@ -104,12 +105,17 @@ def submit_textarea():
         'customer_id': customer_id
     }
 
-    # Submit a transaction
-    new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
+    if not (product_object['weight'].isdecimal()):
+        errors.clear()
+        errors.append("Error - weight is not a number")
+    else:
+        errors.clear()
+        # Submit a transaction
+        new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
 
-    requests.post(new_tx_address,
-                  json=product_object,
-                  headers={'Content-type': 'application/json'})
+        requests.post(new_tx_address,
+                      json=product_object,
+                      headers={'Content-type': 'application/json'})
 
     # Return to the homepage
     return redirect('/')

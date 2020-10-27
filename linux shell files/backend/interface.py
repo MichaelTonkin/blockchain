@@ -293,5 +293,3 @@ def decrypt_transaction():
     data = base64.b64decode(data)
     decrypted = decrypt(data)
     return decrypted
-
-

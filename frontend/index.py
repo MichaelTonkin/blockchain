@@ -105,9 +105,11 @@ def submit_textarea():
         'customer_id': customer_id
     }
 
-    if not (isinstance(product_object['weight'], float) or isinstance(product_object['weight'], int)):
+    if not (product_object['weight'].isdecimal()):
+        del errors[:]
         errors.append("Error - weight is not a number")
     else:
+        del errors[:]
         # Submit a transaction
         new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
 
