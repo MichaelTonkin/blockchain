@@ -111,7 +111,8 @@ def submit_textarea():
     else:
         del errors[:]
         # Submit a transaction
-        new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
+        #new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
+        new_tx_address = "{}/send_validation_transaction".format(CONNECTED_NODE_ADDRESS)
 
         requests.post(new_tx_address,
                       json=product_object,

@@ -1,10 +1,11 @@
 from backend.block import Blockchain, Block
 from backend.cryptography.rsa import *
+from intelligentsystem.validation import validate
 from flask import Flask, request
 import time, json, requests, sys, base64, threading, zlib
 
 app = Flask(__name__)
-print("backend is working", sys.stdout)
+
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
@@ -13,10 +14,11 @@ blockchain = Blockchain()
 blockchain.create_genesis_block()
 
 current_ip = None
+validated_transactions = []
+pending_transactions = [] #transactions that are pending validation from a validation node
 
-# Contains the host address of other participating members of this network
-peers = set()
-
+peers = set()# Contains the host address of other participating members of this network
+validation_peers = ["192.168.0.6:8000"]
 
 @app.route('/set_public_key', methods=['POST'])
 def set_public_key():
@@ -27,21 +29,26 @@ def set_public_key():
     return "Success", 201
 
 
-@app.route('/new_transactions', methods=['POST'])
+"""@app.route('/new_transactions', methods=['POST'])
 def new_transactions():
-    """
+    
     This is the endpoint for users to submit new transactions. It will add said transactions to the blockchain.
-    """
+    
     tx_data = request.get_json()
     required_fields = ["initial_id", "weight", "customer_id"]
 
     for field in required_fields:
         if not tx_data.get(field):
             return "Invalid transaction data", 404
-
+        #got to change some of this
         tx_data["timestamp"] = time.time()
         blockchain.add_transaction_to_pending(tx_data)
         return "Success", 201
+"""
+
+
+def new_transactions(tx_data):
+        blockchain.add_transaction_to_pending(tx_data)
 
 
 def block_to_json(block):
@@ -293,3 +300,62 @@ def decrypt_transaction():
     data = base64.b64decode(data)
     decrypted = decrypt(data)
     return decrypted
+
+
+@app.route('/validated_transactions', methods=['POST'])
+def validated_transactions():
+    validated_transactions.append(request.get_json())
+
+    #check if this node is the one that created the transaction that has just been verified.
+    for vt in validated_transactions:
+        if vt in pending_transactions:
+            pending_transactions.remove(vt)
+            new_transactions(vt)
+
+
+
+@app.route('/send_validation_transaction', methods=['POST'])
+def send_validation_transaction():
+    tx_data = request.get_json()
+    required_fields = ["initial_id", "weight", "customer_id"]
+
+    for field in required_fields:
+        if not tx_data.get(field):
+            return "Invalid transaction data", 404
+
+        tx_data["timestamp"] = time.time()
+
+    pending_transactions.append(tx_data)
+
+    for v_peer in validation_peers:
+        requests.post(v_peer + "/receive_validation_transaction", data=json.dumps(tx_data, sort_keys=True))
+
+
+@app.route('/receive_validation_transaction', methods=['POST'])
+def receive_validation_transaction():
+    transaction = request.get_data()
+    file_name = "validate_" + transaction.initialID + ".json"
+
+    #save the transaction to its file. If it doesn't already have a file, then create one.
+    if os.path.exists("validate_" + transaction.initialID + ".json"):
+        with open('data.txt', 'w') as outfile:
+            json.dump(transaction, outfile)
+    else:
+        v_file = open(file_name, "x")
+        with open('data.txt', 'w') as outfile:
+            json.dump(transaction, outfile)
+        v_file.close()
+
+    """
+    run validation code on initialID
+    If the this transaction is valid then we send it to all peers on the network
+    """
+    if validate(transaction.initialID):
+        for peer in peers:
+            requests.post(peer + "/validated_transactions",
+                          json=transaction,
+                          headers={'Content-type': 'application/json'})
+        return "Transaction successfully validated", 201
+    else:
+        return "Transaction failed to validate", 201
+
