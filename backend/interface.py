@@ -5,7 +5,7 @@ from flask import Flask, request
 import time, json, requests, sys, base64, threading, zlib
 
 app = Flask(__name__)
-
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
@@ -14,11 +14,11 @@ blockchain = Blockchain()
 blockchain.create_genesis_block()
 
 current_ip = None
-validated_transactions = []
+eligable_transactions = []
 pending_transactions = [] #transactions that are pending validation from a validation node
 
 peers = set()# Contains the host address of other participating members of this network
-validation_peers = ["192.168.0.6:8000"]
+validation_peers = ["http://192.168.0.6:8000"]
 
 @app.route('/set_public_key', methods=['POST'])
 def set_public_key():
@@ -304,14 +304,15 @@ def decrypt_transaction():
 
 @app.route('/validated_transactions', methods=['POST'])
 def validated_transactions():
-    validated_transactions.append(request.get_json())
+    eligable_transactions.append(request.get_json())
 
     #check if this node is the one that created the transaction that has just been verified.
-    for vt in validated_transactions:
+    for vt in eligable_transactions:
         if vt in pending_transactions:
             pending_transactions.remove(vt)
             new_transactions(vt)
 
+    return "Success", 201
 
 
 @app.route('/send_validation_transaction', methods=['POST'])
@@ -322,27 +323,31 @@ def send_validation_transaction():
     for field in required_fields:
         if not tx_data.get(field):
             return "Invalid transaction data", 404
-
+        #got to change some of this
         tx_data["timestamp"] = time.time()
 
     pending_transactions.append(tx_data)
 
     for v_peer in validation_peers:
-        requests.post(v_peer + "/receive_validation_transaction", data=json.dumps(tx_data, sort_keys=True))
+        requests.post("{}/receive_validation_transaction".format(v_peer),
+                      json=tx_data,
+                      headers={'Content-type': 'application/json'})
+
+    return "Request sent", 201
 
 
 @app.route('/receive_validation_transaction', methods=['POST'])
 def receive_validation_transaction():
-    transaction = request.get_data()
-    file_name = "validate_" + transaction.initialID + ".json"
+    transaction = request.get_json()
+    file_name = "validation_cache/validate_" + transaction.get("initial_id") + ".json"
 
     #save the transaction to its file. If it doesn't already have a file, then create one.
-    if os.path.exists("validate_" + transaction.initialID + ".json"):
-        with open('data.txt', 'w') as outfile:
+    if os.path.exists(file_name):
+        with open(file_name, 'w') as outfile:
             json.dump(transaction, outfile)
     else:
         v_file = open(file_name, "x")
-        with open('data.txt', 'w') as outfile:
+        with open(file_name, 'w') as outfile:
             json.dump(transaction, outfile)
         v_file.close()
 
@@ -350,9 +355,12 @@ def receive_validation_transaction():
     run validation code on initialID
     If the this transaction is valid then we send it to all peers on the network
     """
-    if validate(transaction.initialID):
+    if validate(transaction.get("initial_id")):
+        requests.post("{}/validated_transactions".format(CONNECTED_NODE_ADDRESS),
+                      json=transaction,
+                      headers={'Content-type': 'application/json'})
         for peer in peers:
-            requests.post(peer + "/validated_transactions",
+            requests.post("{}/validated_transactions".format(peer),
                           json=transaction,
                           headers={'Content-type': 'application/json'})
         return "Transaction successfully validated", 201
