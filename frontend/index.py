@@ -87,27 +87,25 @@ def set_public_key():
     return redirect('/')
 
 
-
 @app.route('/submit', methods=['POST'])
 def submit_textarea():
     """
     Endpoint to create a new transaction via our application
     """
-    manufacturer_id = request.form["manufacturer_id"]
-    initial_id = request.form["initial_id"]
-    weight = request.form["weight"]
-    customer_id = request.form["customer_id"]
 
     product_object = {
-        'manufacturer_id': manufacturer_id,
-        'initial_id': initial_id,
-        'weight': weight,
-        'customer_id': customer_id
+        'company': request.form["company"],
+        'req_status': request.form["req_status"],
+        'volume': request.form["volume"],
+        'item_type': request.form["item_type"],
+        'starting_date': request.form["starting_date"],
+        'ending_date': request.form["ending_date"],
+        'frequency': request.form["frequency"]
     }
 
-    if not (product_object['weight'].isdecimal()):
+    if not (product_object['volume'].isdecimal()):
         del errors[:]
-        errors.append("Error - weight is not a number")
+        errors.append("Error - volume is not a number")
     else:
         del errors[:]
         # Submit a transaction

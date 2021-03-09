@@ -66,11 +66,19 @@ class Blockchain:
         self.tail = None
         self.chain = []
         self.unconfirmed_transactions = []
+        self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction("Genesis", quick_encrypt("500", True), quick_encrypt("A0000", True),
-                                                        quick_encrypt("BA0000", True), quick_encrypt(str(datetime.now()), True))
-                              .to_string()],
+        genesis_block = Block(transactions=[Transaction(company=quick_encrypt("Genesis", True),
+                                                        volume=quick_encrypt("0", True),
+                                                        req_status=quick_encrypt("Request", True),
+                                                        trans_num=quick_encrypt("0", True),
+                                                        item_type=quick_encrypt("Aether", True),
+                                                        starting_date=quick_encrypt("00/00/0000", True),
+                                                        ending_date=quick_encrypt("01/01/9999", True),
+                                                        frequency=quick_encrypt("Every thousand years", True),
+                                                        issue_date=quick_encrypt(str(datetime.now()), True)
+                                                        ).to_string()],
                               previous_hash="0000",
                               timestamp=str(datetime.now()))
         genesis_block.calculate_block_hash()
@@ -129,18 +137,26 @@ class Blockchain:
         for transaction in self.unconfirmed_transactions:
 
             #We need to create a separate clone transaction that can be read by the chain custodian.
-            new_transactions.append(Transaction(transaction["customer_id"],
-                                                quick_encrypt(transaction["weight"], False),
-                                                quick_encrypt(transaction["initial_id"], False),
-                                                quick_encrypt(transaction["manufacturer_id"], False),
-                                                quick_encrypt(str(datetime.now()), False)
+            new_transactions.append(Transaction(company=transaction["company"],
+                                                volume=quick_encrypt(transaction["volume"], False),
+                                                req_status=quick_encrypt(transaction["req_status"], False),
+                                                trans_num=str(int(self.last_block)),
+                                                item_type=quick_encrypt(transaction["item_type"], False),
+                                                starting_date=quick_encrypt(transaction["starting_date"], False),
+                                                ending_date=quick_encrypt(transaction["ending_date"], False),
+                                                frequency=quick_encrypt(transaction["frequency"], False),
+                                                issue_date=quick_encrypt(str(datetime.now()), False)
                                                 ).to_string())
 
-            new_transactions.append(Transaction("Chain_Custodian",
-                                                quick_encrypt(transaction["weight"], True),
-                                                quick_encrypt(transaction["initial_id"], True),
-                                                quick_encrypt(transaction["manufacturer_id"], True),
-                                                quick_encrypt(str(datetime.now()), True)
+            new_transactions.append(Transaction(company=transaction["company"],
+                                                volume=quick_encrypt(transaction["volume"], False),
+                                                req_status=quick_encrypt(transaction["req_status"], False),
+                                                trans_num=quick_encrypt("PLACEHOLDER", False),
+                                                item_type=quick_encrypt(transaction["item_type"], False),
+                                                starting_date=quick_encrypt(transaction["starting_date"], False),
+                                                ending_date=quick_encrypt(transaction["ending_date"], False),
+                                                frequency=quick_encrypt(transaction["frequency"], False),
+                                                issue_date=quick_encrypt(str(datetime.now()), False)
                                                 ).to_string())
 
         new_block = Block(transactions=new_transactions,
@@ -181,13 +197,25 @@ class Blockchain:
 
 
 class Transaction:
-    def __init__(self, receiver, weight, initID, manuID, timestamp):
-        self.receiver = receiver #the address of the node recieving this transaction
-        self.initID = initID #initial product id
-        self.manuID = manuID #manugacturer product id
-        self.weight = weight
-        self.timestamp = timestamp
+    def __init__(self, volume, req_status, company, trans_num, item_type, starting_date, ending_date, frequency, issue_date):
+        self.company = company
+        self.volume = volume
+        self.req_status = req_status
+        self.trans_num = trans_num
+        self.item_type = item_type
+        self.starting_date = starting_date
+        self.ending_date = ending_date
+        self.frequency = frequency
+        self.issue_date = issue_date
 
     def to_string(self):
-        return '{Date ' + str(self.timestamp) + ' Manufacturer_Product_ID ' + str(self.manuID) + ' Weight_KG ' + str(self.weight) \
-               + ' Initial_Product_ID ' + str(self.initID) + ' Customer ' + str(self.receiver) + '}'
+        return '{Date ' + str(self.issue_date) + \
+               ' Company ' + str(self.company) + \
+               ' Status ' + str(self.req_status) + \
+               ' Transaction Number ' + str(self.trans_num) + \
+               ' Volume ' + str(self.volume) + \
+               ' Type ' + str(self.item_type) + \
+               ' Starting ' + str(self.starting_date) + \
+               ' Ending ' + str(self.ending_date) + \
+               ' Frequency ' + str(self.frequency) \
+               + '}'
