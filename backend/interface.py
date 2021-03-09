@@ -4,17 +4,11 @@ from flask import Flask, request
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
-<<<<<<< Updated upstream
 print("backend is working", sys.stdout)
-=======
-
->>>>>>> Stashed changes
-#get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
 #initialize our blockchain as an object
 blockchain = Blockchain()
-<<<<<<< Updated upstream
 blockchain.create_genesis_block()
 
 current_ip = None
@@ -25,12 +19,11 @@ peers = set()
 
 @app.route('/set_public_key', methods=['POST'])
 def set_public_key():
-=======
->>>>>>> Stashed changes
 
+    key_data = request.get_json()
 
-# Contains the host address of other participating members of this network
-peers = set()
+    write_to_file("public_key_name.txt", key_data)
+    return "Success", 201
 
 
 @app.route('/new_transactions', methods=['POST'])
@@ -45,14 +38,10 @@ def new_transactions():
         if not tx_data.get(field):
             return "Invalid transaction data", 404
 
-<<<<<<< Updated upstream
-        tx_data["timestamp"] = time.time()
-        blockchain.add_transaction_to_pending(tx_data)
-=======
         tx_data["issue_date"] = time.time()
         blockchain.add_transaction_to_pending(tx_data)
         print(blockchain.unconfirmed_transactions)
->>>>>>> Stashed changes
+
         return "Success", 201
 
 
@@ -64,7 +53,7 @@ def block_to_json(block):
     transactions = []
 
     for transaction in block.get_transactions():
-        transactions.append(str(transaction))
+        transactions.append(transaction.to_string())
 
     return {"transactions": transactions, "previous_hash": block.get_previous_hash(),
                        "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
@@ -159,6 +148,7 @@ def create_chain_from_dump(chain_dump):
             bc.chain.append(block)
     return bc
 
+
 def consensus():
     """
     The consensus algorithm to determine which instance of the chain our network should use. If a longer valid chain is
@@ -237,8 +227,4 @@ def decrypt_transaction():
     decrypted = decrypt(data)
     print("decry = " + str(decrypted), sys.stdout)
     return decrypted
-<<<<<<< Updated upstream
-=======
 
-
->>>>>>> Stashed changes

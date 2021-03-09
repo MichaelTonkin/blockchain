@@ -16,7 +16,7 @@ class Block:
         self.block_hash = None
 
     def calculate_block_hash(self):
-        block_string = json.dumps(self.__dict__, sort_keys=True)
+        block_string = json.dumps(self.to_string(), sort_keys=True)
         hash = sha256(block_string.encode()).hexdigest()
         self.block_hash = hash
         return hash
@@ -72,13 +72,13 @@ class Blockchain:
         genesis_block = Block(transactions=[Transaction(company=quick_encrypt("Genesis", True),
                                                         volume=quick_encrypt("0", True),
                                                         req_status=quick_encrypt("Request", True),
-                                                        trans_num=quick_encrypt("0", True),
+                                                        trans_num=0,
                                                         item_type=quick_encrypt("Aether", True),
                                                         starting_date=quick_encrypt("00/00/0000", True),
                                                         ending_date=quick_encrypt("01/01/9999", True),
                                                         frequency=quick_encrypt("Every thousand years", True),
                                                         issue_date=quick_encrypt(str(datetime.now()), True)
-                                                        ).to_string()],
+                                                        )],
                               previous_hash="0000",
                               timestamp=str(datetime.now()))
         genesis_block.calculate_block_hash()
@@ -131,7 +131,7 @@ class Blockchain:
             return False
 
         last_block = self.last_block
-
+        previous_trans_num = self.chain[-1].get_transactions()[-1].trans_num
         new_transactions = []
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
@@ -140,24 +140,25 @@ class Blockchain:
             new_transactions.append(Transaction(company=transaction["company"],
                                                 volume=quick_encrypt(transaction["volume"], False),
                                                 req_status=quick_encrypt(transaction["req_status"], False),
-                                                trans_num=str(int(self.last_block)),
+                                                trans_num=int(previous_trans_num) + 1,
                                                 item_type=quick_encrypt(transaction["item_type"], False),
                                                 starting_date=quick_encrypt(transaction["starting_date"], False),
                                                 ending_date=quick_encrypt(transaction["ending_date"], False),
                                                 frequency=quick_encrypt(transaction["frequency"], False),
                                                 issue_date=quick_encrypt(str(datetime.now()), False)
-                                                ).to_string())
+                                                ))
 
             new_transactions.append(Transaction(company=transaction["company"],
                                                 volume=quick_encrypt(transaction["volume"], False),
                                                 req_status=quick_encrypt(transaction["req_status"], False),
-                                                trans_num=quick_encrypt("PLACEHOLDER", False),
+                                                trans_num=int(previous_trans_num) + 1,
                                                 item_type=quick_encrypt(transaction["item_type"], False),
                                                 starting_date=quick_encrypt(transaction["starting_date"], False),
                                                 ending_date=quick_encrypt(transaction["ending_date"], False),
                                                 frequency=quick_encrypt(transaction["frequency"], False),
                                                 issue_date=quick_encrypt(str(datetime.now()), False)
-                                                ).to_string())
+                                                ))
+            previous_trans_num += 1
 
         new_block = Block(transactions=new_transactions,
                           timestamp=str(datetime.now()),
@@ -207,6 +208,10 @@ class Transaction:
         self.ending_date = ending_date
         self.frequency = frequency
         self.issue_date = issue_date
+
+    def to_arr(self):
+        return [self.company, self.volume, self.req_status, self.trans_num, self.item_type, self.starting_date, self.ending_date,
+                self.frequency, self.issue_date]
 
     def to_string(self):
         return '{Date ' + str(self.issue_date) + \
