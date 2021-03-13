@@ -1,6 +1,7 @@
 from backend.block import Blockchain, Block
 from backend.cryptography.rsa import *
 from flask import Flask, request
+from backend.peer import Peer
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
@@ -88,12 +89,17 @@ def register_new_peers():
     """
 
     # The host address to the peer node
+    name = request.get_json()["name"]
     node_address = request.get_json()["node_address"]
+    company_type = request.get_json()["company_type"]
+    products = request.get_json()["products"]
+    physical_address = request.get_json()["physical_address"]
+
     if not node_address:
         return "Invalid data", 400
 
     # add the node to the peer list
-    peers.add(node_address)
+    peers.add(Peer(name=name, ip=node_address, company_type=company_type, products=products, physical_address=physical_address))
 
     return get_chain()
 
@@ -106,13 +112,23 @@ def register_with_existing_node():
     request, and sync the blockchain as well as peer data.
     """
 
+    name = request.get_json()["name"]
     node_address = request.get_json()["node_address"]
+    company_type = request.get_json()["company_type"]
+    products = request.get_json()["products"]
+    physical_address = request.get_json()["physical_address"]
 
 
     if not node_address:
         return "Invalid data", 400
 
-    data = {"node_address": request.host_url}
+    data = {
+            "name": name, 
+            "node_address": node_address,
+            "company_type": company_type,
+            "products": products,
+            "physical_address": physical_address
+            }
     headers = {'Content-Type': "application/json"}
 
     # Make a request to register with remote node and obtain information
