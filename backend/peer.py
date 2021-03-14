@@ -6,3 +6,4 @@ class Peer:
         self.products = products
         self.ip = ip
         self.physical_address = physical_address
+

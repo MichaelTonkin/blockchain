@@ -171,6 +171,7 @@ class Blockchain:
 
         return new_block.get_block_hash()
 
+
     def check_chain_validity(cls, chain):
         """
         A helper method to check if the entire blockchain is valid.

@@ -1,44 +1,37 @@
 from flask import request, redirect,render_template
 from jinja2 import Environment, PackageLoader, select_autoescape
-import sys, base64, requests, json
+import sys, base64, requests, json, socket
 from frontend import app
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
-@app.route('/details')
-def index_page():
-    """Provides data for the index.html page on the front-end."""
-    env = Environment(
-        loader=PackageLoader('frontend', 'templates'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-
-    template = env.get_template('details.html')
-
-    return template.render(node_address=CONNECTED_NODE_ADDRESS)
-
-@app.route('/submit', methods=['POST'])
-def submit_textarea():
+@app.route('/submit_details', methods=['POST'])
+def submit_details():
     """
-    Endpoint to create a new transaction via our application
+    Send the company details to the information agent on this network
     """
 
-    product_object = {
-        'company': request.form["company"],
-        'req_status': request.form["req_status"],
-        'volume': request.form["volume"],
-        'item_type': request.form["item_type"],
-        'starting_date': request.form["starting_date"],
-        'ending_date': request.form["ending_date"],
-        'frequency': request.form["frequency"]
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    address = s.getsockname()[0]
+    s.close()
+
+    company_details = {
+        'name': request.form["name"],
+        'company_type': request.form["company_type"],
+        'physical_address': request.form["physical_address"],
+        'node_address': "http://"+address,
+        'information_node': request.form["information_node"],
+        'products': None
     }
 
-    # Submit a transaction
-    new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
+    information_agent_ip = request.form["information_node"]
 
-    requests.post(new_tx_address,
-                  json=product_object,
+    registration_address = "{}/register_with".format(information_agent_ip)
+
+    requests.post(registration_address,
+                  json=company_details,
                   headers={'Content-type': 'application/json'})
 
     # Return to the homepage
-    return redirect('/')
+    return redirect('/get_details_page')

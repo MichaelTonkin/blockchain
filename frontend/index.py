@@ -100,7 +100,7 @@ def set_public_key():
 
 
 @app.route('/submit', methods=['POST'])
-def submit_textarea():
+def submit_transaction():
     """
     Endpoint to create a new transaction via our application
     """

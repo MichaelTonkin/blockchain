@@ -15,8 +15,31 @@ blockchain.create_genesis_block()
 current_ip = None
 
 # Contains the host address of other participating members of this network
+peers_json = {}
+peers_json['nodes'] = []
+
+#The internal data structure for the peers objects
 peers = set()
 
+
+def load_peers_on_startup():
+    """Here we loop through all the values in peerlist.json and convert it to a set"""
+    if len(peers) <= 0:
+        try:
+            with open('backend/peerlist.json') as data_file:
+                data = json.load(data_file)
+
+                for v in data.values():
+                    print(v)
+                    peers.add(Peer(name=v[0]['name'],
+                                   company_type=v[0]['company_type'],
+                                   products=v[0]['products'],
+                                   ip=v[0]['node_address'],
+                                   physical_address=v[0]['physical_address']))
+        except:
+            print("No data to load from peerlist.json")
+
+load_peers_on_startup()
 
 @app.route('/set_public_key', methods=['POST'])
 def set_public_key():
@@ -71,8 +94,8 @@ def get_chain():
         chain_data.append(block_to_json(block))
 
     return json.dumps({"length": len(chain_data),
-                       "chain": chain_data,
-                       "peers": list(peers)})
+                       "chain": chain_data})
+
 
 @app.route('/pending_tx')
 def get_pending_tx():
@@ -99,7 +122,22 @@ def register_new_peers():
         return "Invalid data", 400
 
     # add the node to the peer list
-    peers.add(Peer(name=name, ip=node_address, company_type=company_type, products=products, physical_address=physical_address))
+    peers_json['nodes'].append({
+        'name': name,
+        'node_address': node_address,
+        'company_type': company_type,
+        'products': products,
+        'physical_address': physical_address
+    })
+
+    with open('backend/peerlist.json', 'w') as outfile:
+        json.dump(peers_json, outfile)
+
+    peers.add(Peer(name=name,
+                   company_type=company_type,
+                   products=products,
+                   ip=node_address,
+                   physical_address=physical_address))
 
     return get_chain()
 
@@ -117,7 +155,7 @@ def register_with_existing_node():
     company_type = request.get_json()["company_type"]
     products = request.get_json()["products"]
     physical_address = request.get_json()["physical_address"]
-
+    target_node = request.get_json()["information_node"]
 
     if not node_address:
         return "Invalid data", 400
@@ -132,17 +170,17 @@ def register_with_existing_node():
     headers = {'Content-Type': "application/json"}
 
     # Make a request to register with remote node and obtain information
-    response = requests.post(node_address + "/register_node",
+    response = requests.post(target_node + "/register_node",
                              data=json.dumps(data), headers=headers)
 
     if response.status_code == 200:
         global blockchain
-        global peers
+        global peers_json
         # update chain and the peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
 
-        peers.update(response.json()['peers'])
+        peers_json.update(response.json()['peers'])
 
         return "Registration successful", 200
     else:
@@ -153,8 +191,9 @@ def register_with_existing_node():
 def create_chain_from_dump(chain_dump):
     bc = Blockchain()
     for idx, block_data in enumerate(chain_dump):
-        block = Block(block_data["transactions"],
-                      block_data["previous_hash"])
+        block = Block(transactions=block_data["transactions"],
+                      previous_hash=block_data["previous_hash"],
+                      timestamp=block_data["timestamp"])
         proof = block_data['hash']
         if idx > 0:
             added = bc.add_block(block, proof)
@@ -176,7 +215,7 @@ def consensus():
     current_len = len(blockchain.chain)
 
     for node in peers:
-        response = requests.get('{}/chain'.format(node))
+        response = requests.get('{}/chain'.format(node.ip))
         length = response.json()['length']
         chain = response.json()['chain']
         if length > current_len and blockchain.check_chain_validity(chain):
@@ -216,7 +255,7 @@ def announce_new_block(block):
     respective chains.
     """
     for peer in peers:
-        url = "{}add_block".format(peer)
+        url = "{}add_block".format(peer.ip)
         requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
 
 

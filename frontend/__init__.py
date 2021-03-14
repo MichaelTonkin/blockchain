@@ -2,4 +2,4 @@ from flask import Flask
 
 app = Flask(__name__)
 
-from frontend import index
+from frontend import index, details
