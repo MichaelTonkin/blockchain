@@ -23,6 +23,18 @@ def index_page():
     return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS, errors=errors)
 
 
+@app.route('/get_details_page')
+def get_details_page():
+
+    env = Environment(
+        loader=PackageLoader('frontend', 'templates'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+
+    template = env.get_template('details.html')
+    return template.render(node_address=CONNECTED_NODE_ADDRESS)
+
+
 def fetch_posts():
     """
     Function to fetch the chain from a blockchain node, parse the
@@ -117,5 +129,6 @@ def submit_textarea():
 
     # Return to the homepage
     return redirect('/')
+
 
 

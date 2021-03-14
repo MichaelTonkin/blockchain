@@ -123,7 +123,7 @@ def register_with_existing_node():
         return "Invalid data", 400
 
     data = {
-            "name": name, 
+            "name": name,
             "node_address": node_address,
             "company_type": company_type,
             "products": products,
