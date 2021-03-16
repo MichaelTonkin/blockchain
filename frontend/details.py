@@ -22,6 +22,21 @@ def save_details_to_file(peer):
     with open('backend/peerdata.json', 'w') as outfile:
         json.dump(peer.to_json(), outfile)
 
+
+def open_details_file():
+    with open('backend/peerdata.json', 'r') as myfile:
+        data = myfile.read()
+    return data
+
+
+def load_inventory():
+    data = open_details_file()
+
+    node = json.loads(data)
+    inventory = node['products']
+    return inventory
+
+
 @app.route('/submit_details', methods=['POST'])
 def submit_details():
     """
@@ -39,7 +54,7 @@ def submit_details():
         'physical_address': request.form["physical_address"],
         'node_address': "http://"+address,
         'information_node': request.form["information_node"],
-        'products': None
+        'products': list(load_inventory().keys())
     }
 
     node = Peer(name=request.form["name"],

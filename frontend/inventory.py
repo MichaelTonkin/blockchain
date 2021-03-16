@@ -24,6 +24,7 @@ def load_inventory_page():
 
     return template.render(items_list=items_list)
 
+
 def save_details_to_file(node):
     with open('backend/peerdata.json', 'w') as outfile:
         json.dump(node, outfile)
