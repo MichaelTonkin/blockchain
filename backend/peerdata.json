@@ -1,8 +1,1 @@
-{
-  "peerdata" : {
-    "name" : "",
-    "company_type": "",
-    "products": "",
-    "physical_address": ""
-  }
-}
+{"name": "123", "node_address": "http://192.168.0.7", "company_type": "123", "products": {"sdfa": 4564}, "physical_address": "123"}
