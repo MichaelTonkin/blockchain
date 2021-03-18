@@ -1,0 +1,31 @@
+body
+{
+    background-color:#99B4FF;
+    font-family: "Courier New";
+}
+
+.well
+{
+    border-radius: 1em;
+    box-shadow:3px 7px #9C95C4;
+    background-color:#F7F7F7;
+    margin: 10px auto;
+    width: 50%;
+    text-align:center;
+    padding:10px;
+}
+
+.navi
+{
+    top:0;
+    left:0;
+    width:100%
+    position:absolute;
+    background-color:#0B5DC1;
+    padding: 10px;
+}
+
+.navi a
+{
+    color: white;
+}
