@@ -1,7 +1,7 @@
 from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
 import sys, base64, requests, json
-from frontend import app
+from view import app
 
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 posts = []
@@ -14,7 +14,7 @@ def index_page():
     """Provides data for the index.html page on the front-end."""
     fetch_posts()
     env = Environment(
-        loader=PackageLoader('frontend', 'templates'),
+        loader=PackageLoader('view', 'templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
 

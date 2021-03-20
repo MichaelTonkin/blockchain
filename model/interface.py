@@ -1,11 +1,11 @@
-from backend.block import Blockchain, Block
-from backend.cryptography.rsa import *
+from model.block import Blockchain, Block
+from model.cryptography.rsa import *
 from flask import Flask, request
-from backend.peer import Peer
+from model.peer import Peer
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
-print("backend is working", sys.stdout)
+print("model is working", sys.stdout)
 private_key = generate_private_key()
 public_key = generate_public_key()
 #initialize our blockchain as an object
@@ -25,7 +25,7 @@ def load_peers_on_startup():
     """Here we loop through all the values in peerlist.json and convert it to a set"""
     if len(peers) <= 0:
         try:
-            with open('backend/peerlist.json') as data_file:
+            with open('model/peerlist.json') as data_file:
                 data = json.load(data_file)
 
                 for v in data.values():
@@ -129,7 +129,7 @@ def register_new_peers():
         'physical_address': physical_address
     })
 
-    with open('backend/peerlist.json', 'w') as outfile:
+    with open('model/peerlist.json', 'w') as outfile:
         json.dump(peers_json, outfile)
 
     peers.add(Peer(name=name,

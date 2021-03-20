@@ -1,5 +1,5 @@
 import json, sys, base64
-from backend.cryptography.rsa import encrypt
+from model.cryptography.rsa import encrypt
 from datetime import datetime
 from hashlib import sha256
 
