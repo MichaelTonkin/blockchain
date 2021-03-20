@@ -10,7 +10,6 @@ private_key = generate_private_key()
 public_key = generate_public_key()
 #initialize our blockchain as an object
 blockchain = Blockchain()
-blockchain.create_genesis_block()
 
 current_ip = None
 
