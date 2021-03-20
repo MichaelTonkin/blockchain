@@ -108,9 +108,9 @@ def encrypt(msg, custodian):
     mes = bytes(msg, 'utf8')
 
     if(public_key_name == ""):
-        pub_key = load_public_key(os.path.relpath("backend/public_keys/public_key.pem" + public_key_name))
+        pub_key = load_public_key(os.path.relpath("model/public_keys/public_key.pem" + public_key_name))
     else:
-        pub_key = load_public_key(os.path.relpath("backend/public_keys/" + public_key_name))
+        pub_key = load_public_key(os.path.relpath("model/public_keys/" + public_key_name))
 
     ciphertext = pub_key.encrypt(
         mes,

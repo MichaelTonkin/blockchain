@@ -1,7 +1,7 @@
 from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
 import json
-from frontend import app
+from view import app
 
 
 items_list = []
@@ -16,7 +16,7 @@ def load_inventory_page():
     items_list.append(load_inventory())
 
     env = Environment(
-        loader=PackageLoader('frontend', 'templates'),
+        loader=PackageLoader('view', 'templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
 
@@ -26,12 +26,12 @@ def load_inventory_page():
 
 
 def save_details_to_file(node):
-    with open('backend/peerdata.json', 'w') as outfile:
+    with open('model/peerdata.json', 'w') as outfile:
         json.dump(node, outfile)
 
 
 def open_details_file():
-    with open('backend/peerdata.json', 'r') as myfile:
+    with open('model/peerdata.json', 'r') as myfile:
         data = myfile.read()
     return data
 

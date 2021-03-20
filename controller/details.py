@@ -1,8 +1,8 @@
 from flask import request, redirect,render_template
 from jinja2 import Environment, PackageLoader, select_autoescape
 import sys, base64, requests, json, socket
-from frontend import app
-from backend.peer import Peer
+from view import app
+from model.peer import Peer
 CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
 
@@ -10,7 +10,7 @@ CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 def get_details_page():
 
     env = Environment(
-        loader=PackageLoader('frontend', 'templates'),
+        loader=PackageLoader('view', 'templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
 
@@ -19,12 +19,12 @@ def get_details_page():
 
 
 def save_details_to_file(peer):
-    with open('backend/peerdata.json', 'w') as outfile:
+    with open('model/peerdata.json', 'w') as outfile:
         json.dump(peer.to_json(), outfile)
 
 
 def open_details_file():
-    with open('backend/peerdata.json', 'r') as myfile:
+    with open('model/peerdata.json', 'r') as myfile:
         data = myfile.read()
     return data
 

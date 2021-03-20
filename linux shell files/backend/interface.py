@@ -1,10 +1,10 @@
-from backend.block import Blockchain, Block
-from backend.cryptography.rsa import *
+from model.block import Blockchain, Block
+from model.cryptography.rsa import *
 from flask import Flask, request
 import time, json, requests, sys, base64, threading, zlib
 
 app = Flask(__name__)
-print("backend is working", sys.stdout)
+print("model is working", sys.stdout)
 #get our private and public keys
 private_key = generate_private_key()
 public_key = generate_public_key()
