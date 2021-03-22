@@ -10,6 +10,8 @@
     <form action="/add_to_inventory" method="post">
         <input type="text" name="item" placeholder="Item">
         <input type="text" name="amount" placeholder="Amount">
+        <input type="text" name="price" placeholder="Price (£)">
+        <input type="text" name="producable" placeholder="Amount produced per day">
         <input type="submit" placeholder="Add">
     </form>
 
@@ -17,16 +19,20 @@
 <h3>Click to remove</h3>
     <form action="/remove_from_inventory" method="post" id="remove_item_form">
         <input type="hidden" name="key_value" id="key_value" value="" />
-        {% for item in items_list %}
-           {% for key, value in item.items() %}
-                <a onclick="document.getElementById('key_value').value='{{key}}';
-                document.getElementById('remove_item_form').submit();">
-                    <strong>Item:</strong> {{key}}
-                    <strong>Volume:</strong> {{value}}
-                </a>
-        <br>
-           {% endfor %}
-        {% endfor %}
+        {% if not items_list %}
+            <p>Nothing to display.</p>
+        {% else %}
+            {% for item in items_list %}
+               {% for key, value in item.items() %}
+                    <a onclick="document.getElementById('key_value').value='{{key}}';
+                    document.getElementById('remove_item_form').submit();">
+                        <strong>Item:</strong> {{key}}
+                        <strong>Amount:</strong> {{value[0]}} <strong> Price (£):</strong> {{value[1]}} <strong> Produced per day:</strong> {{value[2]}}
+                    </a>
+            <br>
+               {% endfor %}
+            {% endfor %}
+        {% endif %}
     </form>
 </body>
 

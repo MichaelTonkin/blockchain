@@ -31,9 +31,11 @@ def open_details_file():
 
 def load_inventory():
     data = open_details_file()
-
-    node = json.loads(data)
-    inventory = node['products']
+    try:
+        node = json.loads(data)
+        inventory = node['products']
+    except:
+        inventory = {}
     return inventory
 
 
@@ -67,7 +69,7 @@ def submit_details():
 
     information_agent_ip = request.form["information_node"]
 
-    registration_address = "{}/register_with".format(information_agent_ip)
+    registration_address = "{}/register_node".format(information_agent_ip)
 
     requests.post(registration_address,
                   json=company_details,

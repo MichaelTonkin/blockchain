@@ -31,16 +31,19 @@ def save_details_to_file(node):
 
 
 def open_details_file():
-    with open('model/peerdata.json', 'r') as myfile:
-        data = myfile.read()
+    with open('model/peerdata.json', 'r') as file:
+        data = file.read()
     return data
 
 
 def load_inventory():
     data = open_details_file()
-
-    node = json.loads(data)
-    inventory = node['products']
+    inventory = ""
+    try:
+        node = json.loads(data)
+        inventory = node['products']
+    except:
+        print("Nothing to load in inventory.")
     return inventory
 
 
@@ -56,11 +59,19 @@ def add_to_inventory():
 
     item = request.form['item']
     amount = request.form['amount']
+    price = request.form['price']
+    producable = request.form['producable'] # the amount of this product which can be produced each day
 
     if item in inventory:
-        inventory[item] = int(inventory[item]) + int(amount)
+        print(inventory[item][0])
+        inventory[item][0] = [int(inventory[item][0][0]) + int(amount)]
+        inventory[item][1] = [int(price)]
+        inventory[item][2] = [float(producable)]
     else:
-        inventory[item] = int(amount)
+        inventory[item] = []
+        inventory[item].append([int(amount)])
+        inventory[item].append([int(price)])
+        inventory[item].append([float(producable)])
 
     node['products'] = inventory
 

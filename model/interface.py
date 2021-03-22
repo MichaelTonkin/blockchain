@@ -141,6 +141,18 @@ def register_new_peers():
     return get_chain()
 
 
+@app.route('/update_peerslist', methods=['POST'])
+def update_peerslist():
+    """Called when a node wishes to receive the most up-to-date version of the peerlist.json file (which contains
+    information about all nodes on the network)."""
+
+    with open('model/peerlist.json', 'r') as file:
+        data = file.read()
+
+    json_data = json.loads(data)
+    return json_data
+
+
 @app.route('/register_with', methods=['POST'])
 def register_with_existing_node():
     """
@@ -178,7 +190,7 @@ def register_with_existing_node():
         # update chain and the peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
-
+        print("Kill me plz" + str(response.json()))
         peers_json.update(response.json()['peers'])
 
         return "Registration successful", 200
