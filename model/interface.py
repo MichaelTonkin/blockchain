@@ -120,14 +120,23 @@ def register_new_peers():
     if not node_address:
         return "Invalid data", 400
 
-    # add the node to the peer list
-    peers_json['nodes'].append({
+    new_node = {
         'name': name,
         'node_address': node_address,
         'company_type': company_type,
         'products': products,
         'physical_address': physical_address
-    })
+    }
+
+    # update the node if it already exists in the list
+    if new_node in peers_json['nodes']:
+        for company in peers_json['nodes'][0]:
+            if company['name'] == name:
+                company.update(new_node)
+                break
+
+    # add the node to the peer list
+    peers_json['nodes'].append(new_node)
 
     with open('model/peerlist.json', 'w') as outfile:
         json.dump(peers_json, outfile)
