@@ -1,6 +1,7 @@
 from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
-import json
+import json, requests
+from model.peer import Peer
 from view import app
 
 
@@ -47,6 +48,19 @@ def load_inventory():
     return inventory
 
 
+def announce_new_item():
+    with open('model/ia_address.json', 'r') as file:
+        url = file.readline()
+    with open('model/peerdata.json', 'r') as file:
+        company_details = json.load(file)
+
+    registration_address = "{}/register_node".format(url[1:len(url)-1])
+
+    requests.post(registration_address,
+                  json=company_details,
+                  headers={'Content-type': 'application/json'})
+
+
 @app.route('/add_to_inventory', methods=['POST'])
 def add_to_inventory():
     """
@@ -76,7 +90,7 @@ def add_to_inventory():
     node['products'] = inventory
 
     save_details_to_file(node)
-
+    announce_new_item()
     return redirect('/inventory')
 
 

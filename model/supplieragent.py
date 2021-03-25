@@ -1,5 +1,5 @@
 from controller.inventory import load_inventory
-
+import sys, json
 items_list = load_inventory()
 
 class SupplierAgent:
@@ -18,14 +18,15 @@ class SupplierAgent:
             'stock': 0,
             'price': 0
         }
-
+        print(items_list)
         #check that supplier has the requested goods in stock
         if self.product in items_list: #if the supplier has all or some of the requested item in stock
             response_data['accepted'] = True
             response_data['stock'] = self.quantity
             response_data['price'] = int(items_list[self.product][1][0]) * self.quantity
-            return response_data
+            print("accepted request")
+            return json.dumps(response_data)
         else:
-            return response_data
+            return json.dumps(response_data)
 
 

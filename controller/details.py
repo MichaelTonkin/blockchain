@@ -18,9 +18,11 @@ def get_details_page():
     return template.render(node_address=CONNECTED_NODE_ADDRESS)
 
 
-def save_details_to_file(peer):
+def save_details_to_file(peer, intelligent_agent):
     with open('model/peerdata.json', 'w') as outfile:
         json.dump(peer.to_json(), outfile)
+    with open('model/ia_address.json', 'w') as outfile:
+        json.dump(intelligent_agent, outfile)
 
 
 def open_details_file():
@@ -65,11 +67,11 @@ def submit_details():
          ip="http://"+address,
          physical_address=request.form["physical_address"])
 
-    save_details_to_file(node)
+    ia = request.form["information_node"]
 
-    information_agent_ip = request.form["information_node"]
+    save_details_to_file(node, ia)
 
-    registration_address = "{}/register_node".format(information_agent_ip)
+    registration_address = "{}/register_node".format(ia)
 
     requests.post(registration_address,
                   json=company_details,

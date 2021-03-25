@@ -2,6 +2,7 @@ from model.block import Blockchain, Block
 from model.cryptography.rsa import *
 from flask import Flask, request
 from model.peer import Peer
+from model.supplieragent import SupplierAgent
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
@@ -19,6 +20,16 @@ peers_json['nodes'] = []
 
 #The internal data structure for the peers objects
 peers = set()
+
+
+@app.route('/receive_purchase_req', methods=['POST'])
+def receive_purchase_req():
+    data = request.get_json()
+    print("dada" + str(data), sys.stdout)
+    sa = SupplierAgent(product=data['item'], quantity=data['amount'], start_date=data['starting'],
+                       end_date=data['ending'], frequency=data['frequency'])
+
+    return sa.process_request(), 200
 
 
 def load_peers_on_startup():
@@ -199,7 +210,7 @@ def register_with_existing_node():
         # update chain and the peers
         chain_dump = response.json()['chain']
         blockchain = create_chain_from_dump(chain_dump)
-        print("Kill me plz" + str(response.json()))
+
         peers_json.update(response.json()['peers'])
 
         return "Registration successful", 200
