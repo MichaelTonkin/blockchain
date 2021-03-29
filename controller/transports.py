@@ -34,15 +34,13 @@ def open_details_file():
 
 
 def load_transports():
-    inventory = {}
+    transports = {}
     try:
         data = open_details_file()
-
-        node = json.loads(data)
-        inventory = node
+        transports = json.loads(data)
     except ValueError:
         print('No transports to load')
-    return inventory
+    return transports
 
 
 @app.route('/add_transport', methods=['POST'])
