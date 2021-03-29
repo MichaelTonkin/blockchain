@@ -77,7 +77,6 @@ def add_to_inventory():
     producable = request.form['producable'] # the amount of this product which can be produced each day
 
     if item in inventory:
-        print(inventory[item][0])
         inventory[item][0] = [int(inventory[item][0][0]) + int(amount)]
         inventory[item][1] = [int(price)]
         inventory[item][2] = [float(producable)]

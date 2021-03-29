@@ -8,29 +8,29 @@
 <body>
 <h2>Add a transport:</h2>
     <form action="/add_transport" method="post">
-        <input type="text" name="Reg. Number" placeholder="reg">
-        <input type="text" name="Carrying Capacity (kg)" placeholder="capacity">
+        <input type="text" name="reg" placeholder="Reg. Number">
+        <input type="text" name="capacity" placeholder="Carrying Capacity (kg)">
         <input type="submit" placeholder="Add">
     </form>
 
     <h2>List of transports:</h2>
 <h3>Click an individual transport to remove</h3>
-    <form action="/remove_transport" method="post" id="remove_transport_form">
+    <form action="/remove_transport" method="post" id="remove_item_form">
         <input type="hidden" name="key_value" id="key_value" value="" />
-        {% if not items_list %}
-            <p>Nothing to display.</p>
-        {% else %}
-            {% for item in items_list %}
-               {% for key, value in item.items() %}
-                    <a onclick="document.getElementById('key_value').value='{{key}}';
-                    document.getElementById('remove_item_form').submit();">
-                        <strong>Item:</strong> {{key}}
-                        <strong>Amount:</strong> {{value[0]}} <strong> Price (£):</strong> {{value[1]}} <strong> Produced per day:</strong> {{value[2]}}
-                    </a>
-            <br>
-               {% endfor %}
-            {% endfor %}
-        {% endif %}
+    {% if not transport_list %}
+        <p>Nothing to display.</p>
+    {% else %}
+        {% for item in transport_list %}
+           {% for key, value in item.items() %}
+                <a onclick="document.getElementById('key_value').value='{{key}}';
+                document.getElementById('remove_item_form').submit();">
+                    <strong>Item:</strong> {{key}}
+                    <strong>Amount:</strong> {{value}}
+                </a>
+        <br>
+           {% endfor %}
+        {% endfor %}
+    {% endif %}
     </form>
 </body>
 

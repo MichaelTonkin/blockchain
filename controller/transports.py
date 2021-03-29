@@ -3,17 +3,14 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import json
 from view import app
 
-
-transports_list = []
+transport_list = []
 
 
 @app.route('/transports')
 def load_transports_page():
-    global transports_list
+    global transport_list
 
-    transports_list = []
-
-    transports_list.append(load_inventory())
+    transport_list = [load_transports()]
 
     env = Environment(
         loader=PackageLoader('view', 'templates'),
@@ -22,12 +19,12 @@ def load_transports_page():
 
     template = env.get_template('transports.html')
 
-    return template.render(transports_list=transports_list)
+    return template.render(transport_list=transport_list)
 
 
-def save_details_to_file(node):
+def save_details_to_file(data):
     with open('model/transports.json', 'w') as outfile:
-        json.dump(node, outfile)
+        json.dump(data, outfile)
 
 
 def open_details_file():
@@ -36,57 +33,43 @@ def open_details_file():
     return data
 
 
-def load_inventory():
-    data = open_details_file()
+def load_transports():
+    inventory = {}
+    try:
+        data = open_details_file()
 
-    node = json.loads(data)
-    inventory = node['products']
+        node = json.loads(data)
+        inventory = node
+    except ValueError:
+        print('No transports to load')
     return inventory
 
 
 @app.route('/add_transport', methods=['POST'])
 def add_transport():
     """
-    Adds a transport to the company inventory
+    Adds a transport and corresponding transport capacity to file
     """
-    data = open_details_file()
+    reg = request.form['reg']
+    capacity = request.form['capacity']
+    data = load_transports()
+    data[reg] = float(capacity)
+    save_details_to_file(data)
 
-    node = json.loads(data)
-    inventory = load_inventory()
-
-    item = request.form['item']
-    amount = request.form['amount']
-
-    if item in inventory:
-        inventory[item] = int(inventory[item]) + int(amount)
-    else:
-        inventory[item] = int(amount)
-
-    node['products'] = inventory
-
-    save_details_to_file(node)
-
-    return redirect('/inventory')
+    return redirect('/transports')
 
 
 @app.route('/remove_transport', methods=['POST'])
 def remove_transport():
-    """Removes an item from the company inventory"""
-
-    data = open_details_file()
-
-    node = json.loads(data)
-    inventory = load_inventory()
+    """Allows the user to click a transport to delete it from file"""
+    transports = load_transports()
 
     item = request.form['key_value']
-    print(item)
-    if item in inventory:
-        inventory.pop(item)
 
-    node['products'] = inventory
+    del transports[item]
 
-    save_details_to_file(node)
+    save_details_to_file(transports)
 
     del item
 
-    return redirect('/inventory')
+    return redirect('/transports')
