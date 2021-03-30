@@ -13,34 +13,33 @@ class CourierAgent:
         self.end_date = end_date
         self.frequency = frequency
 
-    def measure_duration(self):
-        """Used for measuring the number of days between two dates"""
-        sdate = date(self.start_date)  # start date
-        edate = date(self.end_date)  # end date
-
-        delta = edate - sdate  # as timedelta
-        days = 0
-        for i in range(delta.days + 1):
-            day = sdate + timedelta(days=i)
-            day += 1
-        return days
 
     def process_request(self):
 
         response_data = {
-            'accepted': False,
             'dates': []
         }
 
-        transport_calendar = {} # to be loaded from file
+        with open('daily_capacity.json', 'r') as file:
+            transport_calendar = json.loads(file.read())
 
+        today_str = date.today().strftime("%d/%m/%Y")
         #If frequency is daily
         #For each day between start and finish dates: check that we have the capacity to perform the transport service
         #IF we have the capacity: reduce capacity for that day in transport_calendar
         #ELSE go to the next date in range
         #The supplier agent will need to decide what to do if all dates cannot be accommodated for.
         if self.frequency == "daily":
-            pass
+            for day in transport_calendar:
+                if day == self.end_date:
+                    break
+                if day >= self.start_date:
+                    if transport_calendar[day] >= self.quantity:
+                        transport_calendar[day] -= self.quantity
+                        response_data["dates"].append(day)
+
+        with open('daily_capacity.json', 'w') as outfile:
+            json.dump(transport_calendar, outfile)
         #If frequency is weekly
         #For each week in range start to end
         #Add the value of carrying capacity each day to running total.
