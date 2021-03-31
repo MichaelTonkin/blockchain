@@ -2,7 +2,7 @@ from model.block import Blockchain, Block
 from model.cryptography.rsa import *
 from flask import Flask, request
 from model.peer import Peer
-from model.supplieragent import SupplierAgent
+from model.courieragent import CourierAgent
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
@@ -22,14 +22,14 @@ peers_json['nodes'] = []
 peers = set()
 
 
-@app.route('/receive_purchase_req', methods=['POST'])
+@app.route('/receive_courier_req', methods=['POST'])
 def receive_purchase_req():
     data = request.get_json()
     print("dada" + str(data), sys.stdout)
-    sa = SupplierAgent(product=data['item'], quantity=data['amount'], start_date=data['starting'],
+    courier = CourierAgent(quantity=data['amount'], start_date=data['starting'],
                        end_date=data['ending'], frequency=data['frequency'])
 
-    return sa.process_request(), 200
+    return courier.process_request(), 200
 
 
 def load_peers_on_startup():

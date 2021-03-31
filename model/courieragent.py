@@ -6,8 +6,7 @@ items_list = load_inventory()
 
 class CourierAgent:
 
-    def __init__(self, product, quantity, start_date, end_date, frequency):
-        self.product = product
+    def __init__(self, quantity, start_date, end_date, frequency):
         self.quantity = quantity
         self.start_date = start_date
         self.end_date = end_date
