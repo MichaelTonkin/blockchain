@@ -42,10 +42,11 @@ def fetch_posts():
         for block in chain["chain"]:
             content.append(block)
             for transaction in block["transactions"]:
-                customer_pos = transaction.find("Customer") #get the customer id from transaction
+                customer_pos = transaction.find("Company") #get the customer id from transaction
                 if customer_pos is not -1:
-                    customer = transaction[customer_pos + 9:]
-                    customer = customer[0:len(customer)-1]
+                    customer = transaction[customer_pos + 8:]
+                    customer = customer[0:customer.find(" ")]
+                    print(customer)
                     if customer == address:
                         encrypted = transaction.split(" ")
                         decrypt_response = [] #holds segments of the invoice which need to be decrypted.

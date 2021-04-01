@@ -22,6 +22,41 @@ peers_json['nodes'] = []
 peers = set()
 
 
+@app.route('/remove_node', methods=['POST'])
+def remove_node():
+    """Removes a node from the peerlist.json file"""
+
+    # The host address to the peer node
+    name = request.get_json()["name"]
+    node_address = request.get_json()["node_address"]
+    company_type = request.get_json()["company_type"]
+    physical_address = request.get_json()["physical_address"]
+
+    if not node_address:
+        return "Invalid data", 400
+
+    node = {
+        'name': name,
+        'node_address': node_address,
+        'company_type': company_type,
+        'products': [],
+        'physical_address': physical_address
+    }
+
+    # update the node if it already exists in the list
+    if node in peers_json['nodes']:
+        for company in peers_json['nodes'][0]:
+            if company['name'] == name:
+                company.update(node)
+                break
+
+    # add the node to the peer list
+    peers_json['nodes'].append(node)
+
+    with open('model/peerlist.json', 'w') as outfile:
+        json.dump(peers_json, outfile)
+
+
 @app.route('/receive_purchase_req', methods=['POST'])
 def receive_purchase_req():
     data = request.get_json()
@@ -139,12 +174,17 @@ def register_new_peers():
         'physical_address': physical_address
     }
 
+    with open('model/peerlist.json') as data_file:
+        peers_json = json.load(data_file)
+
     # update the node if it already exists in the list
-    if new_node in peers_json['nodes']:
-        for company in peers_json['nodes'][0]:
-            if company['name'] == name:
-                company.update(new_node)
-                break
+    for company in peers_json['nodes']:
+        if company['name'] == name:
+            company.update(new_node)
+
+            with open('model/peerlist.json', 'w') as outfile:
+                json.dump(peers_json, outfile)
+            return get_chain()
 
     # add the node to the peer list
     peers_json['nodes'].append(new_node)

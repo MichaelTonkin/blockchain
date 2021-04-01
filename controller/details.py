@@ -63,7 +63,7 @@ def submit_details():
 
     node = Peer(name=request.form["name"],
          company_type=request.form["company_type"],
-         products={},
+         products=load_inventory(),
          ip="http://"+address,
          physical_address=request.form["physical_address"])
 

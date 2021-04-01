@@ -9,6 +9,7 @@
     <a href="/details" target="_blank">Details</a>
     <a href="/inventory" target="_blank">Inventory</a>
     <a href="/purchase" target="_blank">Purchase</a>
+    <a href="/disconnect" target="_blank">Disconnect</a>
 </div>
     <h1 class="heading">Blockchain Pre-Release</h1>
 
@@ -46,6 +47,7 @@
 </div>
 <div class="well">
     <h2>Your Invoices:</h2>
+    {{invoices}}
     {% for invoice in invoices %}
         {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
     ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />

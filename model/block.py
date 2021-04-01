@@ -69,7 +69,7 @@ class Blockchain:
         self.create_genesis_block()
 
     def create_genesis_block(self):
-        genesis_block = Block(transactions=[Transaction(company=quick_encrypt("Genesis", True),
+        genesis_block = Block(transactions=[Transaction(company="Genesis",
                                                         volume=quick_encrypt("0", True),
                                                         req_status=quick_encrypt("Request", True),
                                                         trans_num=0,
