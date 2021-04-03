@@ -1,12 +1,14 @@
 from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
-import requests, json, sys
+import requests
 from view import app
 import pandas as pd
-#from model.supplieragent import SupplierAgent
+
+feedback = []
 
 @app.route('/purchase')
 def load_purchase_page():
+    global feedback
 
     env = Environment(
         loader=PackageLoader('view', 'templates'),
@@ -15,12 +17,12 @@ def load_purchase_page():
 
     template = env.get_template('purchase.html')
 
-    return template.render()
+    return template.render(feedback=feedback)
+
 
 @app.route('/submit_purchase_req', methods=['POST'])
 def make_purchase_request():
-    company_response = None
-
+    global feedback
     #get updated peerlist from information agent
 
     ia = request.form['ia']
@@ -43,7 +45,6 @@ def make_purchase_request():
 
     #find first peer that has the item we want
     peerlist = peerlist.json().get('nodes')
-    print(peerlist)
 
     potential_amount = 0 # we use this variable to track the total amount of stock we can get from various producers
     amount = int(amount)
@@ -52,9 +53,13 @@ def make_purchase_request():
         if item in company['products']:
             company_url = "{}/receive_purchase_req".format(company['node_address']+":8000")
             company_response = requests.post(company_url, json=json_data)
-            if company_response.json()['accepted']:
+            print(company_response.json())
+            if company_response.json()['accepted'] == True:
                 potential_amount += int(company_response.json()['stock'])
                 print("Nice. It's been accepted")
+
+                feedback.append(company_response.json())
+
             if potential_amount >= amount:
                 break
     if potential_amount < amount:
@@ -81,6 +86,12 @@ def make_purchase_request():
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
             courier_response = requests.post(courier_url, json=json_data, data=calendar)
             if courier_response.json()['accepted']:
-                pass
+                feedback.append(courier_response.json())
+
+                #add transaction to blockchain
+
+
+
+
 
     return redirect('/purchase')

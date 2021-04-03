@@ -10,8 +10,8 @@ errors = []
 address = None
 
 
-@app.route('/')
-def index_page():
+@app.route('/transactions')
+def transactions_page():
     """Provides data for the index.html page on the front-end."""
     fetch_posts()
     env = Environment(
@@ -66,7 +66,7 @@ def fetch_posts():
         invoice_posts = invoices
         posts = content
 
-"""
+
 @app.route('/set_address', methods=['POST'])
 def get_address_from_user():
     global address
@@ -87,38 +87,3 @@ def set_public_key():
                   headers={'Content-type': 'application/json'})
 
     return redirect('/')
-
-
-@app.route('/submit', methods=['POST'])
-def submit_transaction():
-
-    Endpoint to create a new transaction via our application
-
-
-    product_object = {
-        'company': request.form["company"],
-        'req_status': request.form["req_status"],
-        'volume': request.form["volume"],
-        'item_type': request.form["item_type"],
-        'starting_date': request.form["starting_date"],
-        'ending_date': request.form["ending_date"],
-        'frequency': request.form["frequency"]
-    }
-
-    if not (product_object['volume'].isdecimal()):
-        del errors[:]
-        errors.append("Error - volume is not a number")
-    else:
-        del errors[:]
-        # Submit a transaction
-        new_tx_address = "{}/new_transactions".format(CONNECTED_NODE_ADDRESS)
-
-        requests.post(new_tx_address,
-                      json=product_object,
-                      headers={'Content-type': 'application/json'})
-
-    # Return to the homepage
-    return redirect('/')
-
-"""
-

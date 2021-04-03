@@ -4,7 +4,7 @@ import json, requests
 from model.peer import Peer
 from view import app
 
-
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 items_list = []
 
 
@@ -51,8 +51,11 @@ def load_inventory():
 def announce_new_item():
     with open('model/ia_address.json', 'r') as file:
         url = file.readline()
-    with open('model/peerdata.json', 'r') as file:
-        company_details = json.load(file)
+    with open('model/peerdata.json', 'r') as peerdata:
+        data = peerdata.read()
+        company_details = json.loads(data)
+
+    company_details['products'] = list(load_inventory().keys())
 
     registration_address = "{}/register_node".format(url[1:len(url)-1])
 

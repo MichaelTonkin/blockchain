@@ -1,6 +1,8 @@
 from controller.inventory import load_inventory
-import sys, json
+import json, requests
 items_list = load_inventory()
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
+
 
 class SupplierAgent:
 
@@ -18,13 +20,18 @@ class SupplierAgent:
             'stock': 0,
             'price': 0
         }
-        print(items_list)
         #check that supplier has the requested goods in stock
         if self.product in items_list: #if the supplier has all or some of the requested item in stock
             response_data['accepted'] = True
             response_data['stock'] = self.quantity
             response_data['price'] = int(items_list[self.product][1][0]) * self.quantity
             print("accepted request")
+
+            #add this sale to the blockchain
+            requests.post(url="{}/new_transactions".format(CONNECTED_NODE_ADDRESS),
+                          json=self.__dict__,
+                          headers={'Content-type': 'application/json'})
+
             return json.dumps(response_data)
         else:
             return json.dumps(response_data)

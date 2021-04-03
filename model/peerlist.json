@@ -1,1 +1,1 @@
-{"nodes": [{"name": "Bob", "node_address": "http://192.168.0.16", "company_type": "Producer", "products": ["Book", "Cats"], "physical_address": "House"}]}
+{"nodes": [{"name": "Bob", "node_address": "http://192.168.0.15", "company_type": "Producer", "products": ["Heads", "Book", "Pens", "Cats"], "physical_address": "Test"}, {"name": "Boris", "node_address": "http://192.168.0.17", "company_type": "Producer", "products": {"Pies": [[100], [100], [10000.0]]}, "physical_address": "10 downing street"}]}

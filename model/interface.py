@@ -155,6 +155,7 @@ def register_new_peers():
     """
     End point to add new peers to the network
     """
+    global peers_json
 
     # The host address to the peer node
     name = request.get_json()["name"]
@@ -173,9 +174,11 @@ def register_new_peers():
         'products': products,
         'physical_address': physical_address
     }
-
-    with open('model/peerlist.json') as data_file:
-        peers_json = json.load(data_file)
+    try:
+        with open('model/peerlist.json') as data_file:
+            peers_json = json.load(data_file)
+    except:
+        print("Nothing to load in peerlist.json...")
 
     # update the node if it already exists in the list
     for company in peers_json['nodes']:
