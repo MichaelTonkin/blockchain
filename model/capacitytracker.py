@@ -14,7 +14,7 @@ def generate_days(start, end):
 
 def load_transports():
 
-    with open('transports.json', 'r') as myfile:
+    with open('model/transports.json', 'r') as myfile:
         data = myfile.read()
     transports = {}
     try:
@@ -25,7 +25,7 @@ def load_transports():
 
 
 def save_details_to_file(data):
-    with open('daily_capacity.json', 'w') as outfile:
+    with open('model/daily_capacity.json', 'w') as outfile:
         json.dump(data, outfile)
 
 
@@ -52,7 +52,12 @@ def str_to_dateslist(s):
     return result
 
 
-def generate_dates_file():
+def generate_dates_file(new_capacity):
+    """
+
+    :param new_capacity: indicates a new transport which needs to be added. If this is 0, then it will be unused.
+    :return:
+    """
     # if file is empty: from today print each day for 6 months with fixed capacity
     days_list = generate_days(date.today(), date.today() + timedelta(days=182))
     total_capacity = calculate_capacity()
@@ -62,10 +67,13 @@ def generate_dates_file():
     str_stored_days = {}
     #import the file as stored_days
 
-    with open('daily_capacity.json', 'r') as file:
-        stored_days = json.loads(file.read())
+    try:
+        with open('daily_capacity.json', 'r') as file:
+            stored_days = json.loads(file.read())
+    except:
+        stored_days = {}
 
-    if not stored_days:
+    if not stored_days or new_capacity >= 0:
         for i in range(0, len(days_list)):
             capacity_list.append(total_capacity)
         str_stored_days = (dict(zip(dateslist_to_str(days_list), capacity_list))) # a string version of the stored_days list
@@ -73,6 +81,7 @@ def generate_dates_file():
     #while day != current day: delete day and add new day to end
     i = 0
 
+    #delete days up to the current date and append a new day to the end for each iteration
     for day in str_stored_days:
         i += 1
 
@@ -81,8 +90,8 @@ def generate_dates_file():
         str_stored_days.pop(day)
         str_stored_days[(today_dat + timedelta(days=182 + i)).strftime("%d/%m/%Y")] = total_capacity
 
+
     if str_stored_days == {}:
         print("CapacityTracker: Nothing new to add.")
     else:
         save_details_to_file(str_stored_days)
-generate_dates_file()

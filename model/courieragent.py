@@ -1,8 +1,7 @@
-from controller.inventory import load_inventory
+from model.capacitytracker import generate_dates_file
 import sys, json
 from datetime import date, timedelta
 
-items_list = load_inventory()
 
 class CourierAgent:
 
@@ -11,7 +10,6 @@ class CourierAgent:
         self.start_date = start_date
         self.end_date = end_date
         self.frequency = frequency
-
 
     def process_request(self):
 
@@ -33,8 +31,9 @@ class CourierAgent:
                 if day == self.end_date:
                     break
                 if day >= self.start_date:
-                    if transport_calendar[day] >= self.quantity:
-                        transport_calendar[day] -= self.quantity
+                    if transport_calendar[day] >= float(self.quantity):
+                        print("trans" + str(transport_calendar[day]))
+                        transport_calendar[day] -= float(self.quantity)
                         response_data["dates"].append(day)
 
         with open('daily_capacity.json', 'w') as outfile:
@@ -46,9 +45,10 @@ class CourierAgent:
         #starting from earliest date subtract capacity from the day and running total, adding each day to the list
         #until we have met the demand.
 
-
-
         return json.dumps(response_data)
+#c = CourierAgent("10", "01/01/2021", "02/01/2022", "daily")
+#print(c.process_request())
+
 
 
 

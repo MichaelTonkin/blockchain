@@ -2,6 +2,7 @@ from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
 import json
 from view import app
+from model.capacitytracker import generate_dates_file
 
 transport_list = []
 
@@ -53,7 +54,7 @@ def add_transport():
     data = load_transports()
     data[reg] = float(capacity)
     save_details_to_file(data)
-
+    generate_dates_file(capacity)
     return redirect('/transports')
 
 
