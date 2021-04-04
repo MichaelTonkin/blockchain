@@ -69,16 +69,6 @@ def make_purchase_request():
     if potential_amount < amount:
         print("Could not find enough stock")
         feedback.append("Could not find enough stock.")
-    #do something if request can be partly fulfilled
-    #print("response = " +str(company_response.__dict__))
-
-    #if request is rejected go to next peer with item we want
-
-    #if no one can accept our request, apologise profusely
-
-    #search for a courier who can handle the request
-
-    #here we generate a dictionary which will be used as the transport calendar
     """dates = pd.date_range(start=starting, end=ending)
     l = []
     for i in range(0, len(dates)):
@@ -92,7 +82,7 @@ def make_purchase_request():
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
             courier_response = requests.post(courier_url, json=json_data)
             try:
-                if courier_response.json()['accepted']:
+                if courier_response.json()['dates']:
                     feedback.append(courier_response.json())
             except:
                 feedback.append("Error trying to reach courier")
