@@ -38,6 +38,7 @@ class CourierAgent:
 
         with open('daily_capacity.json', 'w') as outfile:
             json.dump(transport_calendar, outfile)
+        print(response_data)
         #If frequency is weekly
         #For each week in range start to end
         #Add the value of carrying capacity each day to running total.

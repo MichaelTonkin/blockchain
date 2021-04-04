@@ -29,7 +29,7 @@ def receive_purchase_req():
     courier = CourierAgent(quantity=data['amount'], start_date=data['starting'],
                        end_date=data['ending'], frequency=data['frequency'])
 
-    return courier.process_request(), 200
+    return courier.process_request()
 
 
 def load_peers_on_startup():
