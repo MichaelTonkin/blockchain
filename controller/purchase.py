@@ -83,11 +83,12 @@ def make_purchase_request():
         l.append(False)
     calendar = dict(zip(dates, l))
 
+    json_data['calendar'] = calendar
 
     for courier in peerlist:
         if "Courier" in courier['company_type']:
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
-            courier_response = requests.post(courier_url, json=json_data, data=calendar)
+            courier_response = requests.post(courier_url, json=json_data)
             try:
                 if courier_response.json()['accepted']:
                     feedback.append(courier_response.json())
