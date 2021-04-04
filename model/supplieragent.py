@@ -20,11 +20,13 @@ class SupplierAgent:
             'stock': 0,
             'price': 0
         }
+        print(self.product)
+        print(items_list)
         #check that supplier has the requested goods in stock
         if self.product in items_list: #if the supplier has all or some of the requested item in stock
             response_data['accepted'] = True
             response_data['stock'] = self.quantity
-            response_data['price'] = int(items_list[self.product][1][0]) * self.quantity
+            response_data['price'] = int(items_list[self.product][1][0]) * int(self.quantity)
             print("accepted request")
 
             #add this sale to the blockchain

@@ -54,16 +54,19 @@ def make_purchase_request():
             company_url = "{}/receive_purchase_req".format(company['node_address']+":8000")
             company_response = requests.post(company_url, json=json_data)
             print(company_response.json())
-            if company_response.json()['accepted'] == True:
-                potential_amount += int(company_response.json()['stock'])
-                print("Nice. It's been accepted")
-
-                feedback.append(company_response.json())
+            try:
+                if company_response.json()['accepted'] == True:
+                    potential_amount += int(company_response.json()['stock'])
+                    print("Nice. It's been accepted")
+                    feedback.append(company_response.json())
+            except:
+                feedback.append("Error trying to reach producer nodes")
 
             if potential_amount >= amount:
                 break
     if potential_amount < amount:
         print("Could not find enough stock")
+        feedback.append("Could not find enough stock.")
     #do something if request can be partly fulfilled
     #print("response = " +str(company_response.__dict__))
 
@@ -85,9 +88,11 @@ def make_purchase_request():
         if "Courier" in courier['company_type']:
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
             courier_response = requests.post(courier_url, json=json_data, data=calendar)
-            if courier_response.json()['accepted']:
-                feedback.append(courier_response.json())
-
+            try:
+                if courier_response.json()['accepted']:
+                    feedback.append(courier_response.json())
+            except:
+                feedback.append("Error trying to reach courier")
                 #add transaction to blockchain
 
 
