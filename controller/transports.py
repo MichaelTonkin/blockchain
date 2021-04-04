@@ -68,6 +68,7 @@ def remove_transport():
     del transports[item]
 
     save_details_to_file(transports)
+    generate_dates_file(1)
 
     del item
 
