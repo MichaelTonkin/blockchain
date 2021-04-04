@@ -25,6 +25,8 @@ def make_purchase_request():
     global feedback
     #get updated peerlist from information agent
 
+    feedback = []
+
     ia = request.form['ia']
     item = request.form['item']
     amount = request.form['amount']
@@ -53,8 +55,8 @@ def make_purchase_request():
         if item in company['products']:
             company_url = "{}/receive_purchase_req".format(company['node_address']+":8000")
             company_response = requests.post(company_url, json=json_data)
-            print(company_response.json())
             try:
+                print(company_response.json())
                 if company_response.json()['accepted'] == True:
                     potential_amount += int(company_response.json()['stock'])
                     print("Nice. It's been accepted")
@@ -77,13 +79,13 @@ def make_purchase_request():
     #search for a courier who can handle the request
 
     #here we generate a dictionary which will be used as the transport calendar
-    dates = pd.date_range(start=starting, end=ending)
+    """dates = pd.date_range(start=starting, end=ending)
     l = []
     for i in range(0, len(dates)):
         l.append(False)
     calendar = dict(zip(dates, l))
 
-    json_data['calendar'] = calendar
+    json_data['calendar'] = calendar"""
 
     for courier in peerlist:
         if "Courier" in courier['company_type']:
