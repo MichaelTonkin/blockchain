@@ -14,6 +14,7 @@ class CourierAgent:
     def process_request(self):
 
         response_data = {
+            'company': "placeholder",
             'dates': []
         }
 
@@ -32,12 +33,27 @@ class CourierAgent:
                     break
                 if day >= self.start_date:
                     if transport_calendar[day] >= float(self.quantity):
-                        print("trans" + str(transport_calendar[day]))
                         transport_calendar[day] -= float(self.quantity)
                         response_data["dates"].append(day)
+        elif self.frequency == "weekly":
+            weekly_capacity = 0
+            for week in range(0, len(transport_calendar), 7):
+                if week >= self.end_date:
+                    break
+                if week >= self.start_date:
+                    for cap in range(week, len(transport_calendar), 7):
+                        weekly_capacity += transport_calendar.values()[cap]
+                        #you can edit the json file while going through this, then just discard it if unused
+                        if weekly_capacity < self.quantity:
+                            break
+
+
 
         with open('daily_capacity.json', 'w') as outfile:
             json.dump(transport_calendar, outfile)
+
+
+
         print(response_data)
         #If frequency is weekly
         #For each week in range start to end
