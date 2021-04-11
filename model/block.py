@@ -113,7 +113,7 @@ class Blockchain:
 
         computed_hash = block.get_block_hash()
         while not computed_hash.startswith('0' * Blockchain.difficulty):
-            block.nonce += 1
+            #block.nonce += 1
             computed_hash = block.calculate_block_hash()
 
         return computed_hash
