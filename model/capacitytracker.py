@@ -70,7 +70,7 @@ def generate_dates_file(new_capacity):
     #import the file as stored_days
 
     try:
-        with open('daily_capacity.json', 'r') as file:
+        with open('model/daily_capacity.json', 'r') as file:
             stored_days = json.loads(file.read())
     except:
         stored_days = {}
