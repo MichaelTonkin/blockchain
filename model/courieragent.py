@@ -13,6 +13,8 @@ class CourierAgent:
 
     def process_request(self):
 
+        cont_quantity = self.quantity
+
         response_data = {
             'company': "placeholder",
             'dates': []
@@ -37,30 +39,34 @@ class CourierAgent:
                         response_data["dates"].append(day)
         elif self.frequency == "weekly":
             weekly_capacity = 0
-            for week in range(0, len(transport_calendar), 7):
+            for week in range(0, len(transport_calendar), 7): #iterate through each week
                 if week >= self.end_date:
                     break
                 if week >= self.start_date:
-                    for cap in range(week, len(transport_calendar), 7):
+                    for cap in range(week, week + 7, 1): #add the capacity for all the days in this week
                         weekly_capacity += transport_calendar.values()[cap]
-                        #you can edit the json file while going through this, then just discard it if unused
+
                         if weekly_capacity < self.quantity:
                             break
 
+                        transport_calendar.values()[cap] -= cont_quantity
+                        cont_quantity -= cont_quantity
 
+                        if transport_calendar.values()[cap] < 0:
+                            cont_quantity += transport_calendar.values()[cap]
+                            transport_calendar.values()[cap] -= cont_quantity
+
+                        if cont_quantity == 0:
+                            break
+                    if cont_quantity == 0:
+                        break
+                if cont_quantity == 0:
+                    break
 
         with open('daily_capacity.json', 'w') as outfile:
             json.dump(transport_calendar, outfile)
 
-
-
         print(response_data)
-        #If frequency is weekly
-        #For each week in range start to end
-        #Add the value of carrying capacity each day to running total.
-        #If we have enough capacity for that week:
-        #starting from earliest date subtract capacity from the day and running total, adding each day to the list
-        #until we have met the demand.
 
         return json.dumps(response_data)
 
