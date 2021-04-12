@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles.css">
     <title>Update Company Details</title>
 </head>
 <body>
+
+<div class="navi">
+    <a href="/details" target="_blank">Details</a>
+    <a href="/inventory" target="_blank">Inventory</a>
+    <a href="/purchase" target="_blank">Purchase</a>
+    <a href="/disconnect" target="_blank">Disconnect</a>
+    <a href="/sales" target="_blank">Sales</a>
+    <a href="/transactions" target="_blank">Transactions</a>
+</div>
+<div class="well">
     <h2>Enter your company details:</h2>
     <form action="/submit_details" method="post">
         <input type="text" name="name" placeholder="Company Name">
@@ -13,6 +24,6 @@
         <input type="text" name="information_node" placeholder="Information Node IP">
         <input type="submit">
     </form>
-
+</div>
 </body>
 </html>

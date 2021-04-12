@@ -2,20 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles.css">
     <title>Make a Purchase Request</title>
 </head>
 <body>
-<h2>Request details:</h2>
-    <form action="/submit_purchase_req" method="post">
-        Item: <input type="text" name="item" placeholder="Item"><br>
-        Amount: <input type="text" name="amount" placeholder="Amount"><br>
-        Frequency: <br>
-        Daily:<input type="radio" name="frequency" value="daily">Weekly<input type="radio" name="frequency" value="weekly"><br>
-        Starting: <input type="date" name="starting" placeholder="Starting"><br>
-        Ending: <input type="date" name="ending" placeholder="Ending"><br>
-        Information Agent: <input type="text" name="ia" placeholder="Information Agent"><br>
-        <input type="submit" placeholder="Submit">
-    </form>
-    {{ feedback }}
+
+<div class="navi">
+    <a href="/details" target="_blank">Details</a>
+    <a href="/inventory" target="_blank">Inventory</a>
+    <a href="/purchase" target="_blank">Purchase</a>
+    <a href="/disconnect" target="_blank">Disconnect</a>
+    <a href="/sales" target="_blank">Sales</a>
+    <a href="/transactions" target="_blank">Transactions</a>
+</div>
+<div class="well">
+    <h2>Request details:</h2>
+        <form action="/submit_purchase_req" method="post">
+            Item: <input type="text" name="item" placeholder="Item"><br>
+            Amount: <input type="text" name="amount" placeholder="Amount"><br>
+            Frequency: <br>
+            Daily:<input type="radio" name="frequency" value="daily">Weekly<input type="radio" name="frequency" value="weekly"><br>
+            Starting: <input type="date" name="starting" placeholder="Starting"><br>
+            Ending: <input type="date" name="ending" placeholder="Ending"><br>
+            Information Agent: <input type="text" name="ia" placeholder="Information Agent"><br>
+            <input type="submit" placeholder="Submit">
+        </form>
+        {% for item in feedback %}
+            {{item}} <br />
+        {% endfor %}
+</div>
 </body>
 </html>

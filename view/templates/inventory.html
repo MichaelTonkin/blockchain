@@ -2,10 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles.css">
     <title>Inventory</title>
 </head>
 
 <body>
+
+<div class="navi">
+    <a href="/details" target="_blank">Details</a>
+    <a href="/inventory" target="_blank">Inventory</a>
+    <a href="/purchase" target="_blank">Purchase</a>
+    <a href="/disconnect" target="_blank">Disconnect</a>
+    <a href="/sales" target="_blank">Sales</a>
+    <a href="/transactions" target="_blank">Transactions</a>
+</div>
+<div class="well">
 <h2>Add an item:</h2>
     <form action="/add_to_inventory" method="post">
         <input type="text" name="item" placeholder="Item">
@@ -14,9 +25,10 @@
         <input type="text" name="producable" placeholder="Amount produced per day">
         <input type="submit" placeholder="Add">
     </form>
-
+</div>
+<div class="well">
     <h2>Items in inventory:</h2>
-<h3>Click to remove</h3>
+    <h3>Click to remove</h3>
     <form action="/remove_from_inventory" method="post" id="remove_item_form">
         <input type="hidden" name="key_value" id="key_value" value="" />
         {% if not items_list %}
@@ -34,6 +46,7 @@
             {% endfor %}
         {% endif %}
     </form>
+</div>
 </body>
 
 </html>

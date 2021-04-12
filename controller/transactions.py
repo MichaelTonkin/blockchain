@@ -19,7 +19,7 @@ def transactions_page():
         autoescape=select_autoescape(['html', 'xml'])
     )
 
-    template = env.get_template('index.html')
+    template = env.get_template('transactions.html')
 
     return template.render(invoices=invoice_posts, node_address=CONNECTED_NODE_ADDRESS, errors=errors)
 
@@ -67,12 +67,12 @@ def fetch_posts():
         posts = content
 
 
-@app.route('/set_address', methods=['POST'])
+@app.route('/set_company', methods=['POST'])
 def get_address_from_user():
     global address
     address = request.form["address"]
 
-    return redirect('/')
+    return redirect('/transactions')
 
 
 @app.route('/submit_public_key', methods=['POST'])
@@ -86,4 +86,4 @@ def set_public_key():
                   json=key,
                   headers={'Content-type': 'application/json'})
 
-    return redirect('/')
+    return redirect('/transactions')

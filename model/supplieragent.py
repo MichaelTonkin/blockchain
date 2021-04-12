@@ -16,7 +16,7 @@ class SupplierAgent:
     def process_request(self):
 
         response_data = {
-            'accepted': False,
+            'company': 'placeholder',
             'stock': 0,
             'price': 0
         }

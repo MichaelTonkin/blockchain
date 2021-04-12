@@ -60,32 +60,31 @@ def make_purchase_request():
                 if company_response.json()['accepted'] == True:
                     potential_amount += int(company_response.json()['stock'])
                     print("Nice. It's been accepted")
-                    feedback.append(company_response.json())
+                    feedback.append({"company": company_response.json()['company'], "price": company_response.json()['price'],
+                                    "stock": company_response.json()['stock']})
             except:
-                feedback.append("Error trying to reach producer nodes")
+                pass
 
             if potential_amount >= amount:
                 break
     if potential_amount < amount:
         print("Could not find enough stock")
         feedback.append("Could not find enough stock.")
-    """dates = pd.date_range(start=starting, end=ending)
-    l = []
-    for i in range(0, len(dates)):
-        l.append(False)
-    calendar = dict(zip(dates, l))
-
-    json_data['calendar'] = calendar"""
 
     for courier in peerlist:
         if "Courier" in courier['company_type']:
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
-            courier_response = requests.post(courier_url, json=json_data)
+            courier_response = {}
+            try:
+                courier_response = requests.post(courier_url, json=json_data)
+            except:
+                pass
             try:
                 if courier_response.json()['dates']:
-                    feedback.append(courier_response.json())
+                    feedback.append({"company": courier_response.json()['company'],
+                                     "shipment_dates": courier_response.json()['dates']})
             except:
-                feedback.append("Error trying to reach courier")
+                pass
                 #add transaction to blockchain
 
 

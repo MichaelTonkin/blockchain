@@ -2,14 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/styles.css">
     <title>Title</title>
 </head>
 <body>
-<h2>Your Transactions:</h2>
-    {{invoices}}
-    {% for invoice in invoices %}
-        {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
-    ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />
-    {% endfor %}
+
+<div class="navi">
+    <a href="/details" target="_blank">Details</a>
+    <a href="/inventory" target="_blank">Inventory</a>
+    <a href="/purchase" target="_blank">Purchase</a>
+    <a href="/disconnect" target="_blank">Disconnect</a>
+    <a href="/sales" target="_blank">Sales</a>
+    <a href="/transactions" target="_blank">Transactions</a>
+</div>
+
+<div class="well">
+    <p>Enter the name of your corporation here. The system will make and attempt to decrypt your invoices and send them to you.</p>
+
+    <form action="/set_company" method="post">
+        <input type="text" name="address" placeholder="Get Transactions From...">
+        <input type="submit">
+    </form>
+
+    <p>Set the public key that you want to use to encrypt your message. This key should be provided to you by the recipient of your invoice.</p>
+    <form action="/submit_public_key" method="post">
+        <input type="text" name="key" placeholder="Public Key">
+        <input type="submit">
+    </form>
+</div>
+<div class="well">
+    <h2>Your Transactions:</h2>
+        {{invoices}}
+        {% for invoice in invoices %}
+            {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
+        ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />
+        {% endfor %}
+</div>
+
 </body>
 </html>
