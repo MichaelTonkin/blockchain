@@ -3,6 +3,7 @@ from model.cryptography.rsa import *
 from flask import Flask, request
 from model.peer import Peer
 from model.supplieragent import SupplierAgent
+from model.courieragent import CourierAgent
 import time, json, requests, sys, base64
 
 app = Flask(__name__)
@@ -67,20 +68,29 @@ def receive_purchase_req():
     return sa.process_request(), 200
 
 
+@app.route('/receive_courier_req', methods=['POST'])
+def receive_courier_req():
+    data = request.get_json()
+    print("dada" + str(data), sys.stdout)
+    courier = CourierAgent(quantity=data['amount'], start_date=data['starting'],
+                       end_date=data['ending'], frequency=data['frequency'])
+
+    return courier.process_request()
+
+
 def load_peers_on_startup():
     """Here we loop through all the values in peerlist.json and convert it to a set"""
     if len(peers) <= 0:
         try:
             with open('model/peerlist.json') as data_file:
                 data = json.load(data_file)
-
-                for v in data.values():
-                    print(v)
-                    peers.add(Peer(name=v[0]['name'],
-                                   company_type=v[0]['company_type'],
-                                   products=v[0]['products'],
-                                   ip=v[0]['node_address'],
-                                   physical_address=v[0]['physical_address']))
+                for v in range(0, len(data['nodes'])):
+                    peers.add(Peer(name=data['nodes'][v]['name'],
+                                   company_type=data['nodes'][v]['company_type'],
+                                   products=data['nodes'][v]['products'],
+                                   ip=data['nodes'][v]['node_address'],
+                                   physical_address=data['nodes'][v]['physical_address']))
+                    print("Added peer: " + str(data['nodes'][v]['node_address']))
         except:
             print("No data to load from peerlist.json")
 
@@ -108,8 +118,12 @@ def new_transactions():
             return "Invalid transaction data", 404
 
         tx_data["issue_date"] = time.time()
+
         blockchain.add_transaction_to_pending(tx_data)
-        print(blockchain.unconfirmed_transactions)
+        print("New transaction added to the blockchain. Attempting to mine...")
+        blockchain.mine()
+        print("Mining successful. Announcing new block...")
+        announce_new_block(blockchain.last_block)
 
         return "Success", 201
 
@@ -128,18 +142,36 @@ def block_to_json(block):
                        "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
 
 
+def new_block_to_json(block):
+    """
+    Converts the block passed into parameters into a json readable format.
+    Differs from block_to_json in that it works with blocks incoming over the network.
+    """
+
+    transactions = []
+
+    for transaction in block.get_transactions():
+        print(transaction)
+        transactions.append(transaction)
+
+    return {"transactions": transactions, "previous_hash": block.get_previous_hash(),
+                       "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
+
+
 @app.route('/chain', methods=['GET'])
 def get_chain():
     """
     return the current node's copy of the blockchain in json format
     """
     chain_data = []
-
     for block in blockchain.chain:
-        chain_data.append(block_to_json(block))
+        try:
+            chain_data.append(block_to_json(block))
+        except:
+            chain_data.append(new_block_to_json(block))
 
     return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
+               "chain": chain_data})
 
 
 @app.route('/pending_tx')
@@ -311,9 +343,9 @@ def verify_and_add_block():
 
     block_data = request.get_json(force=True)
 
-    block = Block(block_data["transactions"].to_string(),
-                  block_data["previous_hash"])
-    proof = block_data['block_hash']
+    block = Block(transactions=block_data["transactions"], timestamp=block_data["timestamp"],
+                  previous_hash=block_data["previous_hash"])
+    proof = block_data['hash']
     added = blockchain.add_block(block, proof)
 
     if not added:
@@ -328,9 +360,14 @@ def announce_new_block(block):
     Other blocks can simply verify the proof of work and add it to their
     respective chains.
     """
+    print(peers)
     for peer in peers:
-        url = "{}add_block".format(peer.ip)
-        requests.post(url, data=json.dumps(block.__dict__, sort_keys=True))
+        print("Attempting to announce block to peer: " + str(peer.ip))
+        try:
+            url = "{}/add_block".format(str(peer.ip) + ":8000")
+            requests.post(url, data=json.dumps(block_to_json(block), sort_keys=True))
+        except:
+            print("Failed to announce block to peer: " + str(peer.ip))
 
 
 @app.route('/mine', methods=['GET'])
@@ -355,5 +392,6 @@ def decrypt_transaction():
     data = base64.b64decode(data)
     decrypted = decrypt(data)
     print("decry = " + str(decrypted), sys.stdout)
-    return decrypted
+    #return decrypted
+    return data
 

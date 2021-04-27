@@ -32,39 +32,31 @@ def fetch_posts():
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     decrypt_url = "{}/decrypt".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
+    company_name = get_company_name()
 
     if response.status_code == 200:
         content = []
         invoices = []
         chain = json.loads(response.content)
 
-        #iterate through each block and their transactions
+        # iterate through each block and their transactions
         for block in chain["chain"]:
             content.append(block)
             for transaction in block["transactions"]:
-                customer_pos = transaction.find("Company") #get the customer id from transaction
-                if customer_pos is not -1:
-                    customer = transaction[customer_pos + 8:]
-                    customer = customer[0:customer.find(" ")]
-                    print(customer)
-                    if customer == address:
-                        encrypted = transaction.split(" ")
-                        decrypt_response = [] #holds segments of the invoice which need to be decrypted.
-                        for i in range(1, 9, 2):
-                            decrypt_response.append(requests.post(decrypt_url, data=encrypted[i][1:]))
-                        #construct decrypted transaction
-                        item1 = decrypt_response[0].content.decode('utf-8')
-                        item2 = decrypt_response[1].content.decode('utf-8')
-                        item3 = decrypt_response[2].content.decode('utf-8')
-                        item4 = decrypt_response[3].content.decode('utf-8')
-                        inv = {"Date": item1, "Manufacturer Product ID": item2,
-                               "Weight (KG)": item3, "Initial Product ID": item4}
-                        invoices.append(inv)
+                if company_name in transaction:
+                    invoices.append(transaction)
 
         global posts
         global invoice_posts
         invoice_posts = invoices
         posts = content
+
+
+def get_company_name():
+    with open('model/peerdata.json', 'r') as file:
+        data = json.loads(file.read())
+        name = data["name"]
+    return name
 
 
 @app.route('/set_company', methods=['POST'])

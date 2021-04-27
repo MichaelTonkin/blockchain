@@ -1,4 +1,4 @@
-import json, sys, base64
+import json, sys, base64, ast
 from model.cryptography.rsa import encrypt
 from datetime import datetime
 from hashlib import sha256
@@ -51,7 +51,8 @@ def quick_encrypt(msg, custodian):
         String msg - The string to encrypt
         Boolean custodian - true if we want to use the chain custodian's public key rather than a user defined one.
         """
-    return base64.b64encode(encrypt(msg, custodian))
+    #return base64.b64encode(encrypt(msg, custodian))
+    return msg
 
 
 class Blockchain:
@@ -100,9 +101,21 @@ class Blockchain:
             print("Previous hash is incorrect", sys.stdout)
             return False
 
-        if not Blockchain.is_valid_proof(self, block, proof):
-            print("proof is invalid", sys.stdout)
-            return False
+        #if not Blockchain.is_valid_proof(self, block, proof):
+        #    print("proof is invalid", sys.stdout)
+         #   return False
+
+        #sometimes we need to convert a transaction from string to dict if we received it from another node.
+        try:
+            if block.transactions[0] == str:
+                converted_trans = []
+                for trans in block.transactions:
+                    ast.literal_eval(trans)
+                    converted_trans.append(trans)
+                block.transactions = converted_trans
+                print("\n\n" + str(converted_trans))
+        except:
+            pass
 
         block.previous_hash = previous_hash
         self.chain.append(block)
@@ -113,7 +126,7 @@ class Blockchain:
 
         computed_hash = block.get_block_hash()
         while not computed_hash.startswith('0' * Blockchain.difficulty):
-            #block.nonce += 1
+            block.nonce += 1
             computed_hash = block.calculate_block_hash()
 
         return computed_hash
@@ -135,10 +148,10 @@ class Blockchain:
         new_transactions = []
         #generate a list of transactions
         for transaction in self.unconfirmed_transactions:
-
+            print(transaction)
             #We need to create a separate clone transaction that can be read by the chain custodian.
             new_transactions.append(Transaction(company=transaction["company"],
-                                                volume=quick_encrypt(transaction["volume"], False),
+                                                volume=quick_encrypt(transaction["frequency"], False),
                                                 req_status=quick_encrypt(transaction["req_status"], False),
                                                 trans_num=int(previous_trans_num) + 1,
                                                 item_type=quick_encrypt(transaction["item_type"], False),
@@ -148,15 +161,15 @@ class Blockchain:
                                                 issue_date=quick_encrypt(str(datetime.now()), False)
                                                 ))
 
-            new_transactions.append(Transaction(company=transaction["company"],
-                                                volume=quick_encrypt(transaction["volume"], False),
-                                                req_status=quick_encrypt(transaction["req_status"], False),
+            new_transactions.append(Transaction(company="Chain_Custodian",
+                                                volume=quick_encrypt(transaction["frequency"], True),
+                                                req_status=quick_encrypt(transaction["req_status"], True),
                                                 trans_num=int(previous_trans_num) + 1,
-                                                item_type=quick_encrypt(transaction["item_type"], False),
-                                                starting_date=quick_encrypt(transaction["starting_date"], False),
-                                                ending_date=quick_encrypt(transaction["ending_date"], False),
-                                                frequency=quick_encrypt(transaction["frequency"], False),
-                                                issue_date=quick_encrypt(str(datetime.now()), False)
+                                                item_type=quick_encrypt(transaction["item_type"], True),
+                                                starting_date=quick_encrypt(transaction["starting_date"], True),
+                                                ending_date=quick_encrypt(transaction["ending_date"], True),
+                                                frequency=quick_encrypt(transaction["frequency"], True),
+                                                issue_date=quick_encrypt(str(datetime.now()), True)
                                                 ))
             previous_trans_num += 1
 

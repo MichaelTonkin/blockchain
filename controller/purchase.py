@@ -1,8 +1,9 @@
 from flask import request, redirect
 from jinja2 import Environment, PackageLoader, select_autoescape
-import requests
+import requests, json
 from view import app
-import pandas as pd
+from model.cryptography.rsa import load_public_key
+
 
 feedback = []
 
@@ -20,6 +21,18 @@ def load_purchase_page():
     return template.render(feedback=feedback)
 
 
+def get_company_details():
+    with open('model/peerdata.json', 'r') as file:
+        data = json.loads(file.read())
+    return data
+
+
+def get_ia_node():
+    with open('model/ia_address.json', 'r') as file:
+            data = str(file.read())
+    return data[1 : len(data)-1]
+
+
 @app.route('/submit_purchase_req', methods=['POST'])
 def make_purchase_request():
     global feedback
@@ -27,7 +40,7 @@ def make_purchase_request():
 
     feedback = []
 
-    ia = request.form['ia']
+    ia = get_ia_node()
     item = request.form['item']
     amount = request.form['amount']
     frequency = request.form['frequency']
@@ -85,10 +98,23 @@ def make_purchase_request():
                                      "shipment_dates": courier_response.json()['dates']})
             except:
                 pass
-                #add transaction to blockchain
 
+    details = get_company_details()
 
+    #add transaction to blockchain
+    requests.post(url="{}/new_transactions".format(ia),
+                  json={
+                      "company": details['name'],
+                      "volume": amount,
+                      "req_status": 'Request',
+                      "item_type": item,
+                      "starting_date": starting,
+                      "ending_date": ending,
+                      "frequency": frequency,
+                      "key": load_public_key('public_key.pem')
 
-
+                  },
+                  headers={'Content-type': 'application/json'})
 
     return redirect('/purchase')
+

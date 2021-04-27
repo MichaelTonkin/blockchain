@@ -23,20 +23,20 @@ class CourierAgent:
         with open('model/daily_capacity.json', 'r') as file:
             transport_calendar = OrderedDict(json.loads(file.read()))
 
-        today_str = date.today().strftime("%d/%m/%Y")
-
         if self.frequency == "daily":
             for day in transport_calendar:
-                if day == self.end_date:
+                if day >= self.end_date:
                     break
                 if day >= self.start_date:
                     if transport_calendar[day] >= float(self.quantity):
                         transport_calendar[day] -= float(self.quantity)
                         response_data["dates"].append(day)
+
         elif self.frequency == "weekly":
             index = 0
             weekly_capacity = 0
             list_calendar = list(transport_calendar.keys())
+
             for week in list_calendar[::7]: #iterate through each week
                 cont_quantity = self.quantity
                 index += 7

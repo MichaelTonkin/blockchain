@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="static/styles.css">
-    <title>Title</title>
+    <title>Transactions</title>
 </head>
 <body>
 
@@ -16,7 +16,7 @@
     <a href="/transactions" target="_blank">Transactions</a>
 </div>
 
-<div class="well">
+<!--<div class="well">
     <p>Enter the name of your corporation here. The system will make and attempt to decrypt your invoices and send them to you.</p>
 
     <form action="/set_company" method="post">
@@ -29,15 +29,12 @@
         <input type="text" name="key" placeholder="Public Key">
         <input type="submit">
     </form>
-</div>
+</div>-->
 <div class="well">
     <h2>Your Transactions:</h2>
-        {{invoices}}
         {% for invoice in invoices %}
-            {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
-        ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />
+            {{invoice}} <br /><br />
         {% endfor %}
-</div>
 
 </body>
 </html>
