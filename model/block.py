@@ -160,7 +160,7 @@ class Blockchain:
                                                 frequency=quick_encrypt(transaction["frequency"], False),
                                                 issue_date=quick_encrypt(str(datetime.now()), False)
                                                 ))
-
+            """
             new_transactions.append(Transaction(company="Chain_Custodian",
                                                 volume=quick_encrypt(transaction["frequency"], True),
                                                 req_status=quick_encrypt(transaction["req_status"], True),
@@ -170,7 +170,7 @@ class Blockchain:
                                                 ending_date=quick_encrypt(transaction["ending_date"], True),
                                                 frequency=quick_encrypt(transaction["frequency"], True),
                                                 issue_date=quick_encrypt(str(datetime.now()), True)
-                                                ))
+                                                ))"""
             previous_trans_num += 1
 
         new_block = Block(transactions=new_transactions,

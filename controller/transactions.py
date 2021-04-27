@@ -43,8 +43,7 @@ def fetch_posts():
         for block in chain["chain"]:
             content.append(block)
             for transaction in block["transactions"]:
-                if company_name in transaction:
-                    invoices.append(transaction)
+                invoices.append(transaction)
 
         global posts
         global invoice_posts
