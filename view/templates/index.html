@@ -5,50 +5,13 @@
     <title>Blockchain Application</title>
 </head>
 <body>
+
 <div class="navi">
     <a href="/details" target="_blank">Details</a>
     <a href="/transports" target="_blank">Transports</a>
+    <a href="/transactions" target="_blank">Transactions</a>
 </div>
-    <h1 class="heading">Blockchain Pre-Release</h1>
+    <h1 class="heading">Courier Node</h1>
 
-    <div class="well">
-        <form action="/submit" method="post">
-            <input type="text" name="company" placeholder="Company"></br>
-            <input type="text" name="req_status" placeholder="Status"></br>
-            <input type="text" name="volume" placeholder="volume"></br>
-            <input type="text" name="item_type" placeholder="Type"></br>
-            <input type="text" name="starting_date" placeholder="Starting"></br>
-            <input type="text" name="ending_date" placeholder="Ending"></br>
-            <input type="text" name="frequency" placeholder="Frequency"></br>
-            <input type="submit">
-        </form>
-    </div>
-    <a href="{{node_address}}/mine" target="_blank"><button>Mine Transactions</button></a>
-	<a href="/"><button>Resync</button></a>
-    <br />
-    {% for error in errors %}
-        {{error}} <br />
-    {% endfor %}
-<div class="well">
-    <p>Enter the name of your corporation here. The system will make and attempt to decrypt your invoices and send them to you.</p>
-
-    <form action="/set_address" method="post">
-        <input type="text" name="address" placeholder="Get Transactions From...">
-        <input type="submit">
-    </form>
-
-    <p>Set the public key that you want to use to encrypt your message. This key should be provided to you by the recipient of your invoice.</p>
-    <form action="/submit_public_key" method="post">
-        <input type="text" name="key" placeholder="Public Key">
-        <input type="submit">
-    </form>
-</div>
-<div class="well">
-    <h2>Your Invoices:</h2>
-    {% for invoice in invoices %}
-        {{"Date: " + invoice["Date"] + ", Manufacturer Product ID: " + invoice["Manufacturer Product ID"] +
-    ", Weight (KG): " + invoice["Weight (KG)"] + ", Initial Product ID: " + invoice["Initial Product ID"]}} <br />
-    {% endfor %}
-</div>
 </body>
 </html>

@@ -25,7 +25,6 @@ peers = set()
 @app.route('/receive_courier_req', methods=['POST'])
 def receive_purchase_req():
     data = request.get_json()
-    print("dada" + str(data), sys.stdout)
     courier = CourierAgent(quantity=data['amount'], start_date=data['starting'],
                        end_date=data['ending'], frequency=data['frequency'])
 
@@ -93,18 +92,36 @@ def block_to_json(block):
                        "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
 
 
+def new_block_to_json(block):
+    """
+    Converts the block passed into parameters into a json readable format.
+    Differs from block_to_json in that it works with blocks incoming over the network.
+    """
+
+    transactions = []
+
+    for transaction in block.get_transactions():
+        print(transaction)
+        transactions.append(transaction)
+
+    return {"transactions": transactions, "previous_hash": block.get_previous_hash(),
+                       "timestamp": block.timestamp, "nonce": block.nonce, "hash": block.get_block_hash()}
+
+
 @app.route('/chain', methods=['GET'])
 def get_chain():
     """
     return the current node's copy of the blockchain in json format
     """
     chain_data = []
-
     for block in blockchain.chain:
-        chain_data.append(block_to_json(block))
+        try:
+            chain_data.append(block_to_json(block))
+        except:
+            chain_data.append(new_block_to_json(block))
 
     return json.dumps({"length": len(chain_data),
-                       "chain": chain_data})
+               "chain": chain_data})
 
 
 @app.route('/pending_tx')
