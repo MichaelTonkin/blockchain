@@ -1,1 +1,1 @@
-{"name": "Chain_Custodian", "node_address": "http://192.168.0.7", "company_type": "Supply", "products": {"Book": [[200], [100], [100.0]], "Cats": [[100], [100], [100.0]], "Heads": [[200], [100], [100.0]], "Test": [[23], [123], [123.0]]}, "physical_address": "House"}
+{"name": "Chain_Custodian", "node_address": "http://192.168.0.7", "company_type": "Supply", "products": {}, "physical_address": "House"}
