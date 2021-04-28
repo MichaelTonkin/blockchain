@@ -29,11 +29,6 @@ class SupplierAgent:
             response_data['price'] = int(items_list[self.product][1][0]) * int(self.quantity)
             print("accepted request")
 
-            #add this sale to the blockchain
-            #requests.post(url="{}/new_transactions".format(CONNECTED_NODE_ADDRESS),
-            #              json=self.__dict__,
-            #              headers={'Content-type': 'application/json'})
-
             return json.dumps(response_data)
         else:
             return json.dumps(response_data)
