@@ -39,6 +39,8 @@ def make_purchase_request():
     #get updated peerlist from information agent
 
     feedback = []
+    has_courier = False
+    has_producer = False
 
     ia = get_ia_node()
     item = request.form['item']
@@ -75,6 +77,7 @@ def make_purchase_request():
                     print("Nice. It's been accepted")
                     feedback.append({"company": company_response.json()['company'], "price": company_response.json()['price'],
                                     "stock": company_response.json()['stock']})
+                    has_producer = True
             except:
                 pass
 
@@ -96,25 +99,25 @@ def make_purchase_request():
                 if courier_response.json()['dates']:
                     feedback.append({"company": courier_response.json()['company'],
                                      "shipment_dates": courier_response.json()['dates']})
+                    has_courier = True
             except:
                 pass
 
     details = get_company_details()
 
     #add transaction to blockchain
-    requests.post(url="{}/new_transactions".format(ia),
-                  json={
-                      "company": details['name'],
-                      "volume": amount,
-                      "req_status": 'Request',
-                      "item_type": item,
-                      "starting_date": starting,
-                      "ending_date": ending,
-                      "frequency": frequency,
-                      "key": load_public_key('public_key.pem')
-
-                  },
-                  headers={'Content-type': 'application/json'})
+    if has_courier and has_producer:
+        requests.post(url="{}/new_transactions".format(ia),
+                      json={
+                          "company": details['name'],
+                          "volume": amount,
+                          "req_status": 'Request',
+                          "item_type": item,
+                          "starting_date": starting,
+                          "ending_date": ending,
+                          "frequency": frequency,
+                      },
+                      headers={'Content-type': 'application/json'})
 
     return redirect('/purchase')
 
