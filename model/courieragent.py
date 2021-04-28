@@ -58,6 +58,7 @@ class CourierAgent:
                     for cap in range(index - 7, index, 1): #add the capacity for all the days in this week
                         weekly_capacity += transport_calendar[list_calendar[cap]]
                         if weekly_capacity < self.quantity:
+                            print("not enough capacity: " + str(weekly_capacity) + " required: " + str(self.quantity))
                             break
                         else:
                             response_data["dates"].append(list_calendar[cap])
