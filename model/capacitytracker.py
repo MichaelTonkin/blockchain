@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from collections import OrderedDict
 import json
 
 
@@ -42,6 +43,7 @@ def dateslist_to_str(l):
     result = []
     for day in l:
         result.append(day.strftime("%d/%m/%Y"))
+        print(day.strftime("%d/%m/%Y"))
     return result
 
 
@@ -54,7 +56,6 @@ def str_to_dateslist(s):
 
 def generate_dates_file(new_capacity):
     """
-
     :param new_capacity: indicates a new transport which needs to be added. If this is 0, then it will be unused.
     :return:
     """
@@ -68,7 +69,7 @@ def generate_dates_file(new_capacity):
     #import the file as stored_days
 
     try:
-        with open('daily_capacity.json', 'r') as file:
+        with open('model/daily_capacity.json', 'r') as file:
             stored_days = json.loads(file.read())
     except:
         stored_days = {}
@@ -76,8 +77,9 @@ def generate_dates_file(new_capacity):
     if not stored_days or new_capacity >= 0:
         for i in range(0, len(days_list)):
             capacity_list.append(total_capacity)
-        str_stored_days = (dict(zip(dateslist_to_str(days_list), capacity_list))) # a string version of the stored_days list
+        str_stored_days = (OrderedDict(zip(dateslist_to_str(days_list), capacity_list))) # a string version of the stored_days list
                                                                                 # which can be used in iteration
+        print(str_stored_days)
     #while day != current day: delete day and add new day to end
     i = 0
 

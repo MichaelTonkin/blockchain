@@ -21,8 +21,8 @@ class CourierAgent:
 
     def __init__(self, quantity, start_date, end_date, frequency):
         self.quantity = float(quantity)
-        self.start_date = dt.strptime(start_date, '%Y-%m-%d').strftime('%d/%m/%y')
-        self.end_date = dt.strptime(end_date, '%Y-%m-%d').strftime('%d/%m/%y')
+        self.start_date = dt.strptime(start_date, '%Y-%m-%d')
+        self.end_date = dt.strptime(end_date, '%Y-%m-%d')
         self.frequency = frequency
 
     def process_request(self):
@@ -37,12 +37,15 @@ class CourierAgent:
 
         if self.frequency == "daily":
             for day in transport_calendar:
+                day = dt.strptime(day.replace("/", "-"), '%d-%m-%Y')
+                print(day)
+                print(self.start_date)
                 if day >= self.end_date:
                     break
                 if day >= self.start_date:
-                    if transport_calendar[day] >= float(self.quantity):
-                        transport_calendar[day] -= float(self.quantity)
-                        response_data["dates"].append(day)
+                    if transport_calendar[day.strftime('%d/%m/%Y')] >= float(self.quantity):
+                        transport_calendar[day.strftime('%d/%m/%Y')] -= float(self.quantity)
+                        response_data["dates"].append(day.strftime('%d/%m/%y'))
 
         elif self.frequency == "weekly":
             index = 0
@@ -50,6 +53,7 @@ class CourierAgent:
             list_calendar = list(transport_calendar.keys())
 
             for week in list_calendar[::7]: #iterate through each week
+                week = dt.strptime(week.replace("/", "-"), '%d-%m-%Y')
                 cont_quantity = self.quantity
                 index += 7
                 if week >= self.end_date:
@@ -85,8 +89,8 @@ class CourierAgent:
                               "volume": self.quantity,
                               "req_status": 'Request',
                               "item_type": 'Delivery',
-                              "starting_date": self.start_date,
-                              "ending_date": self.end_date,
+                              "starting_date": self.start_date.strftime('%d/%m/%y'),
+                              "ending_date": self.end_date.strftime('%d/%m/%y'),
                               "frequency": self.frequency,
                           },
                           headers={'Content-type': 'application/json'})
