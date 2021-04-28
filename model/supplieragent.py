@@ -38,12 +38,13 @@ class SupplierAgent:
         print(self.items_list)
         #check that supplier has the requested goods in stock
         if self.product in self.items_list: #if the supplier has all or some of the requested item in stock
-            if self.items_list[self.product][0] >= self.quantity:
+            if int(self.items_list[self.product][0][0]) >= int(self.quantity):
                 response_data['accepted'] = True
                 response_data['stock'] = self.quantity
                 response_data['price'] = int(self.items_list[self.product][1][0]) * int(self.quantity)
                 print("accepted request")
 
         return json.dumps(response_data)
+
 
 
