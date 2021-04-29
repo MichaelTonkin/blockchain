@@ -3,19 +3,20 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 import sys, base64, requests, json, socket
 from view import app
 from model.peer import Peer
-CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
 
+CONNECTED_NODE_ADDRESS = "http://127.0.0.1:8000"
+msg = ""
 
 @app.route('/details')
 def get_details_page():
-
+    global msg
     env = Environment(
         loader=PackageLoader('view', 'templates'),
         autoescape=select_autoescape(['html', 'xml'])
     )
 
     template = env.get_template('details.html')
-    return template.render(node_address=CONNECTED_NODE_ADDRESS)
+    return template.render(node_address=CONNECTED_NODE_ADDRESS, msg=msg)
 
 
 def save_details_to_file(peer, intelligent_agent):
@@ -46,7 +47,7 @@ def submit_details():
     """
     Send the company details to the information agent on this network
     """
-
+    global msg
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     address = s.getsockname()[0]
@@ -76,6 +77,6 @@ def submit_details():
     requests.post(registration_address,
                   json=company_details,
                   headers={'Content-type': 'application/json'})
-
+    msg += "Success"
     # Return to the homepage
     return redirect('/details')
