@@ -9,19 +9,20 @@
 
 <div class="navi">
     <a href="/details" target="_blank">Details</a>
-    <a href="/transports" target="_blank">Transports</a>
+    <a href="/inventory" target="_blank">Inventory</a>
+    <a href="/purchase" target="_blank">Purchase</a>
     <a href="/transactions" target="_blank">Transactions</a>
 </div>
-
-    <div class="well">
-        <h2>Enter your company details:</h2>
-        <form action="/submit_details" method="post">
-            <input type="text" name="name" placeholder="Company Name">
-            <input type="text" name="company_type" placeholder="Company Type">
-            <input type="text" name="physical_address" placeholder="Physical Address">
-            <input type="text" name="information_node" placeholder="Information Node IP">
-            <input type="submit">
-        </form>
-    </div>
+<div class="well">
+    <h2>Enter your company details:</h2>
+    <form action="/submit_details" method="post">
+        <input type="text" name="name" placeholder="Company Name">
+        <input type="text" name="company_type" placeholder="Company Type">
+        <input type="text" name="physical_address" placeholder="Physical Address">
+        <input type="text" name="information_node" placeholder="Information Node IP">
+        <input type="submit">
+    </form>
+    {{msg}}
+</div>
 </body>
 </html>
