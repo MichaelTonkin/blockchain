@@ -67,6 +67,8 @@ def make_purchase_request():
     amount = int(amount)
 
     for company in peerlist:
+        if has_producer == True:
+            break
         if item in company['products']:
             company_url = "{}/receive_purchase_req".format(company['node_address']+":8000")
             company_response = requests.post(company_url, json=json_data)
@@ -88,6 +90,8 @@ def make_purchase_request():
         feedback.append("Could not find enough stock.")
 
     for courier in peerlist:
+        if has_courier == True:
+            break
         if "Courier" in courier['company_type']:
             courier_url = "{}/receive_courier_req".format(courier['node_address'] + ":8000")
             courier_response = {}

@@ -43,7 +43,7 @@ class SupplierAgent:
     def process_request(self):
 
         response_data = {
-            'company': 'placeholder',
+            'company': get_company_details()["name"],
             'stock': 0,
             'price': 0
         }
